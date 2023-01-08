@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:chat_app_flutter/main.dart';
 
 class Login extends StatefulWidget {
   final VoidCallback onClickedRegister;

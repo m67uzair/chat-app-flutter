@@ -30,7 +30,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
-    sdk: flutter
+    sdk: flutter    
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,6 +40,8 @@ dependencies:
   firebase_core: ^2.4.0
   firebase_auth: ^4.2.1
   form_field_validator: ^1.1.0
+  font_awesome_flutter: ^10.3.0
+  modal_bottom_sheet: ^2.1.2
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +64,12 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+  - assets/images/
+#   - assets/images/welcome.png
+#   - assets/images/login.png
+#   - assets/images/forgotPassword.png
+#   - assets/images/profilePicture.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

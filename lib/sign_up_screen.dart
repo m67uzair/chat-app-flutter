@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:chat_app_flutter/main.dart';
 
 class SignUp extends StatefulWidget {
   final VoidCallback onclickedLogin;
