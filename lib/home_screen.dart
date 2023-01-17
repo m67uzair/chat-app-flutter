@@ -23,7 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Messages"),
+          title: const Text(
+            "Messages",
+            style: TextStyle(fontFamily: "caros", fontSize: 25),
+          ),
           centerTitle: true,
           leading: const Icon(Icons.search),
           elevation: 0,
@@ -43,13 +46,51 @@ class _HomeScreenState extends State<HomeScreen> {
             color: const Color(0xff1E1E1E),
             child: Column(
               children: [
-                SingleChildScrollView(
-                    child: Row(children: const [
-                  CircleAvatar(child: Icon(Icons.person)),
-                  CircleAvatar(child: Icon(Icons.person)),
-                  CircleAvatar(child: Icon(Icons.person)),
-                  CircleAvatar(child: Icon(Icons.person)),
-                ])),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  child: SingleChildScrollView(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: const [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundImage:
+                                  AssetImage("assets/images/m_uzair.png"),
+                            ),
+                            Text(
+                              "My Status",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          ],
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage("assets/images/man.jpg"),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage:
+                              AssetImage("assets/images/profilePicture.png"),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage:
+                              AssetImage("assets/images/profilePicture.png"),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage:
+                              AssetImage("assets/images/profilePicture.png"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: Container(
                       decoration: const BoxDecoration(
