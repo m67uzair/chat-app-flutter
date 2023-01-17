@@ -1,6 +1,6 @@
-import 'package:chat_app_flutter/sign_up_screen.dart';
+import 'package:chat_app_flutter/screens/sign_up_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_app_flutter/login_screen.dart';
+import 'package:chat_app_flutter/screens/login_screen.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});

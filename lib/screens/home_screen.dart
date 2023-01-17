@@ -68,21 +68,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             )
                           ],
                         ),
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 30,
                           backgroundImage: AssetImage("assets/images/man.jpg"),
                         ),
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 30,
                           backgroundImage:
                               AssetImage("assets/images/profilePicture.png"),
                         ),
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 30,
                           backgroundImage:
                               AssetImage("assets/images/profilePicture.png"),
                         ),
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 30,
                           backgroundImage:
                               AssetImage("assets/images/profilePicture.png"),
@@ -93,22 +93,64 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Expanded(
                   child: Container(
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40.0),
-                            topRight: Radius.circular(40.0),
-                          )),
-                      child: const Center(
-                        child: Text("Hi modal sheet"),
-                      )),
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(40.0),
+                          topRight: Radius.circular(40.0),
+                        )),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: ListView(
+                        children: [
+                          ListTile(
+                            leading: const CircleAvatar(
+                              radius: 28,
+                              backgroundImage:
+                                  AssetImage("assets/images/m_uzair.png"),
+                            ),
+                            title: const Text(
+                              "Muhammad Uzair",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: const Text("Hey how are you?"),
+                            trailing: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Text("2 min ago"),
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                      color: Color(0xFFF04A4C),
+                                      shape: BoxShape.circle),
+                                  child: const Center(
+                                    child: Text(
+                                      "3",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            onTap: () {},
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          Container(child: Icon(Icons.directions_transit)),
-          Container(child: Icon(Icons.directions_bike)),
-          Container(child: Icon(Icons.directions_bike)),
+          Container(child: const Icon(Icons.directions_transit)),
+          Container(child: const Icon(Icons.directions_bike)),
+          Container(child: const Icon(Icons.directions_bike)),
         ]),
         bottomNavigationBar: const SizedBox(
           height: 80,
