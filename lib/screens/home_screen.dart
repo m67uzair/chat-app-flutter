@@ -1,3 +1,4 @@
+import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -138,7 +139,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 )
                               ],
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChatScreen(),
+                                  ));
+                            },
                           )
                         ],
                       ),
