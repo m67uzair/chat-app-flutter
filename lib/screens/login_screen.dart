@@ -1,7 +1,9 @@
+import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:chat_app_flutter/main.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   final VoidCallback onClickedRegister;
@@ -19,6 +21,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
@@ -130,19 +133,10 @@ class _LoginState extends State<Login> {
                                   child: CircularProgressIndicator(),
                                 ),
                               );
-
-                              try {
-                                await FirebaseAuth.instance
-                                    .signInWithEmailAndPassword(
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text.trim(),
-                                );
-                              } on FirebaseAuthException catch (e) {
-                                print(e);
-                                print(emailController.text);
-                                print(passwordController.text);
-                              }
-
+                              await authProvider.login(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
+                              );
                               navigatorKey.currentState!
                                   .popUntil((route) => route.isFirst);
                             }

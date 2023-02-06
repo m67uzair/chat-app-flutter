@@ -13,6 +13,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
+    List truth = [true, false, true, false];
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData.fallback(),
@@ -70,6 +71,41 @@ class _ChatScreenState extends State<ChatScreen> {
           //   ],
           // ),
           onTap: () {},
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.end,
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: UnconstrainedBox(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xff20A090),
+                  ),
+                  child: const Text("Hello, john"),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: UnconstrainedBox(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xff20A090),
+                  ),
+                  child: const Text("Hello, Muhammad Uzair"),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,9 @@
+import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -35,9 +38,16 @@ class _HomeScreenState extends State<HomeScreen> {
             statusBarColor: Color(0xff1E1E1E),
           ),
           backgroundColor: const Color(0xff1E1E1E),
-          actions: const [
+          actions: [
             CircleAvatar(
-              child: Icon(Icons.person),
+              child: IconButton(
+                onPressed: () async {
+                  await authProvider.signOut();
+                  Navigator.pop(context);
+                  // Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                icon: const Icon(Icons.person),
+              ),
             )
           ],
         ),

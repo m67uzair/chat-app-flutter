@@ -1,8 +1,10 @@
+import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:chat_app_flutter/main.dart';
+import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {
   final VoidCallback onclickedLogin;
@@ -19,8 +21,11 @@ class _SignUpState extends State<SignUp> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
@@ -148,15 +153,9 @@ class _SignUpState extends State<SignUp> {
                             barrierDismissible: false,
                           );
 
-                          try {
-                            await FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                              email: emailController.text.trim(),
-                              password: passwordController.text.trim(),
-                            );
-                          } on FirebaseAuthException catch (e) {
-                            print(e);
-                          }
+                          await authProvider.signIn(emailController.text.trim(),
+                              passwordController.text.trim());
+
                           navigatorKey.currentState!
                               .popUntil((route) => route.isFirst);
                         },
