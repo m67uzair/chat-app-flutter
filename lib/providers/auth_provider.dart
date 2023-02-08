@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:smart_talk/allConstants/all_constants.dart';
 import 'package:chat_app_flutter/models/user_model.dart';
 
+import '../constants/firestore_constants.dart';
+
 enum Status {
   uninitialized,
   authenticated,

@@ -1,24 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-// import 'package:smart_talk/allConstants/all_constants.dart';
 
-class FirestoreConstants {
-  static const pathUserCollection = "users";
-  static const pathMessageCollection = "messages";
-  static const displayName = "displayName";
-  static const aboutMe = "aboutMe";
-  static const photoUrl = "photoUrl";
-  static const phoneNumber = "phoneNumber";
-  static const id = "id";
-  static const chattingWith = "chattingWith";
-  static const idFrom = "idFrom";
-  static const idTo = "idTo";
-  static const timestamp = "timestamp";
-  static const content = "content";
-  static const type = "type";
-  static const email = "email";
-}
+import '../constants/firestore_constants.dart';
+// import 'package:smart_talk/allConstants/all_constants.dart';
 
 class ChatUser extends Equatable {
   final String id;
@@ -62,10 +47,21 @@ class ChatUser extends Equatable {
     String aboutMe = "";
 
     try {
-      photoUrl = snapshot.get(FirestoreConstants.photoUrl);
-      nickname = snapshot.get(FirestoreConstants.displayName);
-      phoneNumber = snapshot.get(FirestoreConstants.phoneNumber);
-      aboutMe = snapshot.get(FirestoreConstants.aboutMe);
+      photoUrl =
+          snapshot.data().toString().contains(FirestoreConstants.photoUrl)
+              ? snapshot.get(FirestoreConstants.photoUrl) ?? ""
+              : "";
+      nickname =
+          snapshot.data().toString().contains(FirestoreConstants.displayName)
+              ? snapshot.get(FirestoreConstants.displayName) ?? ""
+              : "";
+      phoneNumber =
+          snapshot.data().toString().contains(FirestoreConstants.phoneNumber)
+              ? snapshot.get(FirestoreConstants.phoneNumber) ?? 0
+              : 0;
+      aboutMe = snapshot.data().toString().contains(FirestoreConstants.aboutMe)
+          ? snapshot.get(FirestoreConstants.aboutMe) ?? ""
+          : "";
     } catch (e) {
       if (kDebugMode) {
         print(e);

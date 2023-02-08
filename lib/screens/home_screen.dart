@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat_app_flutter/main.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/home_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -151,11 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ChatScreen(),
-                                  ));
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) => const ChatScreen(),
+                              //     ));
                             },
                           )
                         ],

@@ -4,7 +4,17 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String peerId;
+  final String peerAvatar;
+  final String peerNickname;
+  final String userAvatar;
+
+  const ChatScreen(
+      {super.key,
+      required this.peerNickname,
+      required this.peerAvatar,
+      required this.peerId,
+      required this.userAvatar});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();

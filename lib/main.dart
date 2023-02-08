@@ -1,5 +1,7 @@
 import 'package:chat_app_flutter/firebase_options.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
+import 'package:chat_app_flutter/providers/home_provider.dart';
+import 'package:chat_app_flutter/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -38,10 +40,14 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(
-            create: (_) => AuthProvider(
-                firebaseAuth: FirebaseAuth.instance,
-                firebaseFirestore: firebaseFirestore,
-                prefs: prefs))
+          create: (_) => AuthProvider(
+              firebaseAuth: FirebaseAuth.instance,
+              firebaseFirestore: firebaseFirestore,
+              prefs: prefs),
+        ),
+        Provider<HomeProvider>(
+          create: (_) => HomeProvider(firebaseFirestore: firebaseFirestore),
+        )
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -58,7 +64,7 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
-              return const HomeScreen();
+              return const SearchScreen();
             } else {
               return const AuthPage();
             }
