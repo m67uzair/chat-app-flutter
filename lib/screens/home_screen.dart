@@ -1,3 +1,4 @@
+import 'package:chat_app_flutter/main.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: IconButton(
                 onPressed: () async {
                   await authProvider.signOut();
-                  Navigator.pop(context);
+                  navigatorKey.currentState!.popUntil((route) => route.isFirst);
                   // Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 icon: const Icon(Icons.person),

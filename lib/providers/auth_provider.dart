@@ -43,14 +43,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(
+      {required email,
+      required password,
+      required name,
+      required phoneNumber}) async {
     try {
-      firebaseUser =
+      final result =
           (await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
-      ))
-              .user;
+      ));
+
+      await FirebaseAuth.instance.currentUser!.updateDisplayName(name);
+
+      print(name);
+      print(firebaseAuth.currentUser!.displayName);
+
+      firebaseUser = FirebaseAuth.instance.currentUser;
     } on FirebaseAuthException catch (e) {
       print(e);
     }
@@ -79,6 +89,7 @@ class AuthProvider extends ChangeNotifier {
           .collection(FirestoreConstants.pathUserCollection)
           .where(FirestoreConstants.id, isEqualTo: firebaseUser!.uid)
           .get();
+
       final List<DocumentSnapshot> document = result.docs;
       if (document.isEmpty) {
         firebaseFirestore

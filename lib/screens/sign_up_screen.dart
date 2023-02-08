@@ -152,12 +152,19 @@ class _SignUpState extends State<SignUp> {
                             ),
                             barrierDismissible: false,
                           );
+                          bool isSuccess = await authProvider
+                              .signIn(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim(),
+                                  name: nameController.text.trim(),
+                                  phoneNumber:
+                                      int.parse(mobileController.text.trim()))
+                              .then((value) => authProvider.handleSignIn());
 
-                          await authProvider.signIn(emailController.text.trim(),
-                              passwordController.text.trim());
-
-                          navigatorKey.currentState!
-                              .popUntil((route) => route.isFirst);
+                          if (isSuccess) {
+                            navigatorKey.currentState!
+                                .popUntil((route) => route.isFirst);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50.0),
