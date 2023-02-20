@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:chat_app_flutter/main.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
+import 'package:chat_app_flutter/screens/profile_screen.dart';
+import 'package:chat_app_flutter/screens/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -32,12 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchScreen(),
+                  ));
+            },
+            icon: const Icon(Icons.search),
+          ),
           title: const Text(
             "Messages",
             style: TextStyle(fontFamily: "caros", fontSize: 25),
           ),
           centerTitle: true,
-          leading: const Icon(Icons.search),
           elevation: 0,
           systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Color(0xff1E1E1E),
@@ -47,9 +58,13 @@ class _HomeScreenState extends State<HomeScreen> {
             CircleAvatar(
               child: IconButton(
                 onPressed: () async {
-                  await authProvider.signOut();
-                  navigatorKey.currentState!.popUntil((route) => route.isFirst);
-                  // Navigator.popUntil(context, (route) => route.isFirst);
+                  // await authProvider.signOut();
+                  // navigatorKey.currentState!.popUntil((route) => route.isFirst);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileSettingsScreen(),
+                      ));
                 },
                 icon: const Icon(Icons.person),
               ),

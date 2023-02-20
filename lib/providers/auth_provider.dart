@@ -99,7 +99,7 @@ class AuthProvider extends ChangeNotifier {
             .doc(firebaseUser!.uid)
             .set({
           FirestoreConstants.displayName: firebaseUser!.displayName,
-          FirestoreConstants.photoUrl: firebaseUser!.photoURL,
+          FirestoreConstants.photoUrl: firebaseUser!.photoURL ?? "",
           FirestoreConstants.id: firebaseUser!.uid,
           "createdAt: ": DateTime.now().millisecondsSinceEpoch.toString(),
           FirestoreConstants.chattingWith: null

@@ -208,7 +208,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           peerId: userChat.id,
                           peerAvatar: userChat.photoUrl,
                           peerNickname: userChat.displayName,
-                          userAvatar: firebaseAuth.currentUser!.photoURL!,
+                          userAvatar: firebaseAuth.currentUser?.photoURL ?? "",
                         )));
           },
           child: ListTile(
