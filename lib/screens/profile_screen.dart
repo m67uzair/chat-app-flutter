@@ -9,6 +9,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/profile_provider.dart';
 import '../widgets/text_form_field.dart';
@@ -38,7 +39,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   late ProfileProvider profileProvider;
   final FocusNode focusNodeNickname = FocusNode();
 
-  void redLocal() {
+  void readLocal() {
     setState(() {
       id = profileProvider.getPrefs(FirestoreConstants.id) ?? "";
       displayName =
@@ -50,6 +51,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     displayNameController = TextEditingController(text: displayName);
     displayNameController = TextEditingController(text: aboutMe);
     displayNameController = TextEditingController(text: phoneNumber);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    profileProvider = context.read<ProfileProvider>();
+    readLocal();
   }
 
   Future getImage() async {
@@ -91,9 +99,11 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               FirestoreConstants.pathUserCollection, id, updateInfo.toJson())
           .then((value) async {
         await profileProvider.setPrefs(FirestoreConstants.photoUrl, photoUrl);
+
         setState(() {
           isLoading = false;
         });
+        Fluttertoast.showToast(msg: "Profile photo updated");
       });
     } on FirebaseException catch (e) {
       setState(() {
@@ -101,6 +111,40 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       });
       Fluttertoast.showToast(msg: e.toString());
     }
+  }
+
+  void updateFirestoreData() {
+    focusNodeNickname.unfocus();
+
+    setState(() {
+      isLoading = true;
+    });
+
+    ChatUser updatedData = ChatUser(
+        id: id,
+        photoUrl: photoUrl,
+        displayName: displayName,
+        phoneNumber: phoneNumber,
+        aboutMe: aboutMe);
+
+    profileProvider
+        .updateFirestoreData(
+            FirestoreConstants.pathUserCollection, id, updatedData.toJson())
+        .then((value) async {
+      await profileProvider.setPrefs(
+          FirestoreConstants.displayName, displayName);
+      await profileProvider.setPrefs(
+          FirestoreConstants.phoneNumber, phoneNumber);
+      await profileProvider.setPrefs(FirestoreConstants.photoUrl, photoUrl);
+      await profileProvider.setPrefs(FirestoreConstants.aboutMe, aboutMe);
+
+      setState(() {
+        isLoading = false;
+      });
+      Fluttertoast.showToast(msg: "Update Succesfull");
+    }).catchError((onError) {
+      Fluttertoast.showToast(msg: onError.toString());
+    });
   }
 
   @override
@@ -183,21 +227,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                             label: Text('Phone Number'),
                           ),
                         )
-                        // CustomTextFormField(
-                        //   icon: const Icon(Icons.person),
-                        //   controller: nameController,
-                        //   label: const Text("Phone Number"),
-                        //   hintText: '033333333',
-                        //   validator: MultiValidator([
-                        //     RequiredValidator(
-                        //         errorText: "Phone Number Cant be Empty"),
-                        //     MinLengthValidator(11,
-                        //         errorText:
-                        //             "Phone number must be atleast 11 digits"),
-                        //   ]),
-                        // ),
-                        // DropdownButtonFormField(
-                        //     items: items, onChanged: (index) {})
                       ],
                     ),
                   ),
