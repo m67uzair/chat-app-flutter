@@ -1,6 +1,7 @@
 import 'package:chat_app_flutter/firebase_options.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/providers/home_provider.dart';
+import 'package:chat_app_flutter/providers/profile_provider.dart';
 import 'package:chat_app_flutter/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,7 +48,12 @@ class MyApp extends StatelessWidget {
         ),
         Provider<HomeProvider>(
           create: (_) => HomeProvider(firebaseFirestore: firebaseFirestore),
-        )
+        ),
+        Provider<ProfileProvider>(
+            create: (_) => ProfileProvider(
+                prefs: prefs,
+                firebaseStorage: firebaseStorage,
+                firebaseFirestore: firebaseFirestore))
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
