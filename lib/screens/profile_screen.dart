@@ -12,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/profile_provider.dart';
+import '../widgets/loading_view.dart';
 import '../widgets/text_form_field.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
@@ -159,82 +160,88 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         elevation: 0,
         title: const Text("Profile "),
       ),
-      body: Container(
-        color: const Color(0xff1E1E1E),
-        width: double.infinity,
-        child: Column(
-          // ignore: prefer_const_literals_to_create_immutables
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage("assets/images/m_uzair.png"),
-            ),
-            const Text(
-              "Muhammad Uzair",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const Text(
-              "m67uzair@gmail.com",
-              style: TextStyle(color: Colors.white70, fontSize: 15),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40.0),
-                    topRight: Radius.circular(40.0),
+      body: Stack(
+        children: [
+          Container(
+            color: const Color(0xff1E1E1E),
+            width: double.infinity,
+            child: Column(
+              // ignore: prefer_const_literals_to_create_immutables
+              children: [
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage("assets/images/m_uzair.png"),
+                ),
+                const Text(
+                  "Muhammad Uzair",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Form(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        CustomTextFormField(
-                          icon: const Icon(Icons.person),
-                          controller: displayNameController,
-                          label: const Text("Name"),
-                          hintText: 'John Doe',
-                          validator: RequiredValidator(
-                              errorText: 'Name Can\'t Be Empty'),
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextFormField(
-                          icon: const Icon(Icons.info_outline),
-                          controller: aboutMeController,
-                          label: const Text("About Me"),
-                          hintText: 'I love cooking',
-                          validator: (value) {
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        IntlPhoneField(
-                          controller: numberController,
-                          decoration: const InputDecoration(
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black12,
-                              ),
+                const Text(
+                  "m67uzair@gmail.com",
+                  style: TextStyle(color: Colors.white70, fontSize: 15),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40.0),
+                        topRight: Radius.circular(40.0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Form(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            CustomTextFormField(
+                              icon: const Icon(Icons.person),
+                              controller: displayNameController,
+                              label: const Text("Name"),
+                              hintText: 'John Doe',
+                              validator: RequiredValidator(
+                                  errorText: 'Name Can\'t Be Empty'),
                             ),
-                            label: Text('Phone Number'),
-                          ),
-                        )
-                      ],
+                            const SizedBox(height: 20),
+                            CustomTextFormField(
+                              icon: const Icon(Icons.info_outline),
+                              controller: aboutMeController,
+                              label: const Text("About Me"),
+                              hintText: 'I love cooking',
+                              validator: (value) {
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            IntlPhoneField(
+                              controller: numberController,
+                              decoration: const InputDecoration(
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.black12,
+                                  ),
+                                ),
+                                label: Text('Phone Number'),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            )
-          ],
-        ),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+              child: isLoading ? const LoadingView() : const SizedBox.shrink())
+        ],
       ),
     );
   }
