@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chat_app_flutter/models/user_model.dart';
 
 import '../constants/firestore_constants.dart';
+import 'dart:core';
 
 enum Status {
   uninitialized,
@@ -57,7 +58,11 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       ));
 
+      print(result);
+
       await FirebaseAuth.instance.currentUser!.updateDisplayName(name);
+      await prefs.setString(
+          FirestoreConstants.phoneNumber, phoneNumber.toString());
 
       print(name);
       print(firebaseAuth.currentUser!.displayName);
@@ -102,7 +107,8 @@ class AuthProvider extends ChangeNotifier {
           FirestoreConstants.photoUrl: firebaseUser!.photoURL ?? "",
           FirestoreConstants.id: firebaseUser!.uid,
           "createdAt: ": DateTime.now().millisecondsSinceEpoch.toString(),
-          FirestoreConstants.chattingWith: null
+          FirestoreConstants.chattingWith: null,
+          FirestoreConstants.phoneNumber: firebaseUser!.phoneNumber ?? ""
         });
 
         User? currentUser = firebaseUser;
@@ -111,8 +117,12 @@ class AuthProvider extends ChangeNotifier {
             FirestoreConstants.displayName, currentUser.displayName ?? "");
         await prefs.setString(
             FirestoreConstants.photoUrl, currentUser.photoURL ?? "");
-        await prefs.setString(
-            FirestoreConstants.phoneNumber, currentUser.phoneNumber ?? "");
+        if (currentUser.phoneNumber != null) {
+          await prefs.setString(FirestoreConstants.phoneNumber,
+              currentUser.phoneNumber.toString());
+        }
+
+        await prefs.setString(FirestoreConstants.aboutMe, "");
       } else {
         DocumentSnapshot documentSnapshot = document[0];
         ChatUser userChat = ChatUser.fromDocument(documentSnapshot);

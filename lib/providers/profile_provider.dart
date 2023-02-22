@@ -22,9 +22,9 @@ class ProfileProvider {
     return await prefs.setString(key, value);
   }
 
-  UploadTask uploadImageFile(File image, String fileName) {
+  Future<TaskSnapshot> uploadImageFile(File image, String fileName) async {
     Reference reference = firebaseStorage.ref().child(fileName);
-    UploadTask uploadTask = reference.putFile(image);
+    TaskSnapshot uploadTask = await reference.putFile(image);
     return uploadTask;
   }
 

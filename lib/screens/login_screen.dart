@@ -133,10 +133,13 @@ class _LoginState extends State<Login> {
                                   child: CircularProgressIndicator(),
                                 ),
                               );
-                              await authProvider.login(
-                                emailController.text.trim(),
-                                passwordController.text.trim(),
-                              );
+                              await authProvider
+                                  .login(
+                                    emailController.text.trim(),
+                                    passwordController.text.trim(),
+                                  )
+                                  .then((value) async =>
+                                      await authProvider.handleSignIn());
                               navigatorKey.currentState!
                                   .popUntil((route) => route.isFirst);
                             }

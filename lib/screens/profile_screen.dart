@@ -47,11 +47,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           profileProvider.getPrefs(FirestoreConstants.displayName) ?? "";
       photoUrl = profileProvider.getPrefs(FirestoreConstants.photoUrl) ?? "";
       aboutMe = profileProvider.getPrefs(FirestoreConstants.aboutMe) ?? '';
+      phoneNumber =
+          profileProvider.getPrefs(FirestoreConstants.phoneNumber) ?? '';
     });
 
     displayNameController = TextEditingController(text: displayName);
-    displayNameController = TextEditingController(text: aboutMe);
-    displayNameController = TextEditingController(text: phoneNumber);
+    aboutMeController = TextEditingController(text: aboutMe);
+    numberController = TextEditingController(text: phoneNumber);
   }
 
   @override
@@ -84,21 +86,18 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
   Future uploadFile() async {
     String fileName = id;
-    UploadTask uploadTask =
-        profileProvider.uploadImageFile(avatarImageFile!, fileName);
+    TaskSnapshot uploadTask =
+        await profileProvider.uploadImageFile(avatarImageFile!, fileName);
     try {
-      TaskSnapshot snapshot = await uploadTask;
-      photoUrl = await snapshot.ref.getDownloadURL();
-      ChatUser updateInfo = ChatUser(
-          id: id,
-          photoUrl: photoUrl,
-          displayName: displayName,
-          phoneNumber: phoneNumber,
-          aboutMe: aboutMe);
-      profileProvider
-          .updateFirestoreData(
-              FirestoreConstants.pathUserCollection, id, updateInfo.toJson())
-          .then((value) async {
+      photoUrl = await uploadTask.ref.getDownloadURL();
+      // ChatUser updateInfo = ChatUser(
+      //     id: id,
+      //     photoUrl: photoUrl,
+      //     displayName: displayName,
+      //     phoneNumber: phoneNumber,
+      //     aboutMe: aboutMe);
+      profileProvider.updateFirestoreData(FirestoreConstants.pathUserCollection,
+          id, {"photoURL": photoUrl}).then((value) async {
         await profileProvider.setPrefs(FirestoreConstants.photoUrl, photoUrl);
 
         setState(() {
@@ -111,6 +110,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         isLoading = false;
       });
       Fluttertoast.showToast(msg: e.toString());
+      print(e.toString());
     }
   }
 
@@ -127,6 +127,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
         displayName: displayName,
         phoneNumber: phoneNumber,
         aboutMe: aboutMe);
+
+    print('${updatedData} paaado');
 
     profileProvider
         .updateFirestoreData(
@@ -168,9 +170,68 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             child: Column(
               // ignore: prefer_const_literals_to_create_immutables
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage("assets/images/m_uzair.png"),
+                GestureDetector(
+                  onTap: () async {
+                    await getImage();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.all(20),
+                    child: avatarImageFile == null
+                        ? photoUrl.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(60),
+                                child: Image.network(
+                                  photoUrl,
+                                  fit: BoxFit.cover,
+                                  width: 120,
+                                  height: 120,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                    Icons.account_circle,
+                                    size: 90,
+                                    color: Colors.grey,
+                                  ),
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    }
+                                    return SizedBox(
+                                      width: 90,
+                                      height: 90,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.grey,
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
+                            : const Icon(
+                                Icons.account_circle,
+                                size: 90,
+                                color: Colors.grey,
+                              )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(60),
+                            child: Image.file(
+                              avatarImageFile!,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                  ),
                 ),
                 const Text(
                   "Muhammad Uzair",
@@ -228,6 +289,18 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                   ),
                                 ),
                                 label: Text('Phone Number'),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                displayName = displayNameController.text;
+                                aboutMe = aboutMeController.text;
+                                phoneNumber = numberController.text;
+                                updateFirestoreData();
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Update Info'),
                               ),
                             )
                           ],

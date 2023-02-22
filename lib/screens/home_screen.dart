@@ -5,6 +5,7 @@ import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:chat_app_flutter/screens/profile_screen.dart';
 import 'package:chat_app_flutter/screens/search_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: IconButton(
                 onPressed: () async {
                   // await authProvider.signOut();
-                  // navigatorKey.currentState!.popUntil((route) => route.isFirst);
+
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -187,7 +188,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Container(child: const Icon(Icons.directions_transit)),
           Container(child: const Icon(Icons.directions_bike)),
-          Container(child: const Icon(Icons.directions_bike)),
+          IconButton(
+            icon: const Icon(Icons.directions_bike),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
         ]),
         bottomNavigationBar: const SizedBox(
           height: 80,

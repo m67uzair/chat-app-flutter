@@ -161,7 +161,8 @@ class _SignUpState extends State<SignUp> {
                                   name: nameController.text.trim(),
                                   phoneNumber:
                                       int.parse(mobileController.text.trim()))
-                              .then((value) => authProvider.handleSignIn());
+                              .then((value) async =>
+                                  await authProvider.handleSignIn());
 
                           if (isSuccess) {
                             navigatorKey.currentState!
