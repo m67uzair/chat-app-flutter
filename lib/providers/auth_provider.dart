@@ -81,6 +81,8 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       ))
           .user;
+      await prefs.setString(
+          FirestoreConstants.phoneNumber, firebaseUser?.phoneNumber ?? "");
     } on FirebaseAuthException catch (e) {
       print(e);
     }
