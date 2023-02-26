@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chat_app_flutter/constants/firestore_constants.dart';
 import 'package:chat_app_flutter/main.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
@@ -21,11 +22,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late AuthProvider authProvider;
+  late HomeProvider homeProvider;
+  late final String currentUserId;
+
   int selectIndex = 0;
   void onItemTap(int index) {
     setState(() {
       selectIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    authProvider = context.read<AuthProvider>();
+    homeProvider = context.read<HomeProvider>();
+    if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
+      currentUserId = authProvider.getFirebaseUserId()!;
+    }
   }
 
   @override
@@ -170,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 )
                               ],
                             ),
-                            onTap: () {
+                            onTap: () async {
+                              print(
+                                  'CHATTING USERS ${await homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId)}');
                               // Navigator.push(
                               //     context,
                               //     MaterialPageRoute(
@@ -243,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //   iconSize: 30.00,
           //   currentIndex: selectIndex,
           //   selectedItemColor: const Color(0xff1E1E1E),
-          //   onTap: onItemTap,
+          //   onTap: ,
           // )
         ),
       ),

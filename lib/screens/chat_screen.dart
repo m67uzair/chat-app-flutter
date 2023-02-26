@@ -96,8 +96,14 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       groupChatId = '${widget.peerId} - $currentUserId';
     }
-    chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection,
-        currentUserId, {FirestoreConstants.chattingWith: widget.peerId});
+    chatProvider.updateFirestoreData(
+        FirestoreConstants.pathUserCollection, currentUserId, {
+      FirestoreConstants.chattingWith: FieldValue.arrayUnion([widget.peerId])
+    });
+    chatProvider.updateFirestoreData(
+        FirestoreConstants.pathUserCollection, widget.peerId, {
+      FirestoreConstants.chattingWith: FieldValue.arrayUnion([currentUserId])
+    });
   }
 
   Future getImage() async {

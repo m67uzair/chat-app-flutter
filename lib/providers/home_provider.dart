@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../constants/firestore_constants.dart';
@@ -29,5 +31,24 @@ class HomeProvider {
           .limit(limit)
           .snapshots();
     }
+  }
+
+  Future<List> getUsersChattedWith(String collectionPath, String userId) async {
+    return await firebaseFirestore
+        .collection(collectionPath)
+        .doc(userId)
+        .get()
+        .then((documentSnapshot) =>
+            documentSnapshot.data()![FirestoreConstants.chattingWith]);
+  }
+
+  Stream<QuerySnapshot> getFirestoreInboxData(
+      String collectionPath, int limit, String userId) async* {
+    List usersArray = await getUsersChattedWith(collectionPath, userId);
+
+    yield* firebaseFirestore
+        .collection(collectionPath)
+        .where(FirestoreConstants.id, whereIn: usersArray)
+        .snapshots();
   }
 }
