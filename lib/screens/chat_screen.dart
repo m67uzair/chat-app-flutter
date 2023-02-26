@@ -166,6 +166,13 @@ class _ChatScreenState extends State<ChatScreen> {
       textEditingController.clear();
       chatProvider.sendChatMessage(
           content, type, groupChatId, currentUserId, widget.peerId);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut);
+        }
+      });
       scrollController.animateTo(0,
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
