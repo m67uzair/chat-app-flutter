@@ -166,6 +166,7 @@ class _ChatScreenState extends State<ChatScreen> {
       textEditingController.clear();
       chatProvider.sendChatMessage(
           content, type, groupChatId, currentUserId, widget.peerId);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
           scrollController.animateTo(0,
@@ -173,8 +174,6 @@ class _ChatScreenState extends State<ChatScreen> {
               curve: Curves.easeOut);
         }
       });
-      scrollController.animateTo(0,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
       Fluttertoast.showToast(
           msg: 'Nothing to send', backgroundColor: Colors.grey);
@@ -349,6 +348,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget buildItem(int index, DocumentSnapshot? documentSnapshot) {
     if (documentSnapshot != null) {
       ChatMessages chatMessages = ChatMessages.fromDocument(documentSnapshot);
+      print('pado is here ${chatMessages.timestamp}');
       if (chatMessages.idFrom == currentUserId) {
         // right side (my message)
         return Column(
@@ -538,8 +538,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: snapshot.data?.docs.length,
                         reverse: true,
                         controller: scrollController,
-                        itemBuilder: (context, index) =>
-                            buildItem(index, snapshot.data?.docs[index]));
+                        itemBuilder: (context, index) {
+                          print(snapshot.data?.docs[index].get('timestamp'));
+                          return buildItem(index, snapshot.data?.docs[index]);
+                        });
                   } else {
                     return const Center(
                       child: Text('No messages...'),

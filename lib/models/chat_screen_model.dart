@@ -27,24 +27,32 @@ class ChatMessages {
 
   factory ChatMessages.fromDocument(DocumentSnapshot documentSnapshot) {
     String idFrom =
-        documentSnapshot.toString().contains(FirestoreConstants.idFrom)
+        documentSnapshot.data().toString().contains(FirestoreConstants.idFrom)
             ? documentSnapshot.get(FirestoreConstants.idFrom) ?? ""
             : "";
-    String idTo = documentSnapshot.toString().contains(FirestoreConstants.idTo)
-        ? documentSnapshot.get(FirestoreConstants.idTo) ?? ""
-        : "";
-    String timestamp =
-        documentSnapshot.toString().contains(FirestoreConstants.timestamp)
-            ? documentSnapshot.get(FirestoreConstants.timestamp) ?? ""
+    String idTo =
+        documentSnapshot.data().toString().contains(FirestoreConstants.idTo)
+            ? documentSnapshot.get(FirestoreConstants.idTo) ?? ""
             : "";
+    String timestamp = documentSnapshot
+            .data()
+            .toString()
+            .contains(FirestoreConstants.timestamp)
+        ? documentSnapshot.get(FirestoreConstants.timestamp) ?? ""
+        : "";
+    print(
+        "contains: ${documentSnapshot.data().toString().contains(FirestoreConstants.timestamp)}");
+    print("get: ${documentSnapshot.get(FirestoreConstants.timestamp)}");
+    print("timestamp: ${timestamp}");
     String content =
-        documentSnapshot.toString().contains(FirestoreConstants.content)
+        documentSnapshot.data().toString().contains(FirestoreConstants.content)
             ? documentSnapshot.get(FirestoreConstants.content) ?? ""
             : "";
-    int type = documentSnapshot.toString().contains(FirestoreConstants.type)
-        ? documentSnapshot.get(FirestoreConstants.type) ??
-            int.parse(documentSnapshot.get(FirestoreConstants.type))
-        : 0;
+    int type =
+        documentSnapshot.data().toString().contains(FirestoreConstants.type)
+            ? documentSnapshot.get(FirestoreConstants.type) ??
+                int.parse(documentSnapshot.get(FirestoreConstants.type))
+            : 0;
 
     return ChatMessages(
         idFrom: idFrom,
