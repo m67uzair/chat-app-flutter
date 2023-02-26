@@ -1,19 +1,16 @@
-import 'dart:async';
-
 import 'package:chat_app_flutter/constants/firestore_constants.dart';
-import 'package:chat_app_flutter/main.dart';
 import 'package:chat_app_flutter/providers/auth_provider.dart';
-import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:chat_app_flutter/screens/profile_screen.dart';
 import 'package:chat_app_flutter/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
+import '../models/user_model.dart';
 import '../providers/home_provider.dart';
+import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final String currentUserId;
 
   int selectIndex = 0;
+
   void onItemTap(int index) {
     setState(() {
       selectIndex = index;
@@ -46,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -147,42 +144,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           topLeft: Radius.circular(40.0),
                           topRight: Radius.circular(40.0),
                         )),
-                    child: StreamBuilder(
-                      stream: homeProvider.getFirestoreInboxData(
-                          FirestoreConstants.pathUserCollection,
-                          20,
-                          currentUserId),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.hasData) {
-                          if ((snapshot.data?.docs.length ?? 0) > 0) {
-                            return ListView.separated(
-                              itemCount: snapshot.data!.docs.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) => BuildItem(
-                                  homeProvider: homeProvider,
-                                  currentUserId: currentUserId),
-                              separatorBuilder: (context, index) =>
-                                  const Divider(),
-                            );
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: StreamBuilder(
+                        stream: homeProvider.getFirestoreInboxData(
+                            FirestoreConstants.pathUserCollection,
+                            20,
+                            currentUserId),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.hasData) {
+                            if ((snapshot.data?.docs.length ?? 0) > 0) {
+                              return ListView.separated(
+                                itemCount: snapshot.data!.docs.length,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(),
+                                itemBuilder: (context, index) => BuildItem(
+                                    context: context,
+                                    documentSnapshot:
+                                        snapshot.data!.docs[index]),
+                              );
+                            } else {
+                              return const Center(
+                                child: Text("No conversations yet.."),
+                              );
+                            }
                           } else {
                             return const Center(
-                              child: Text("No conversations yet.."),
-                            );
+                                child: CircularProgressIndicator());
                           }
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          Container(child: const Icon(Icons.directions_transit)),
-          Container(child: const Icon(Icons.directions_bike)),
+          const Icon(Icons.directions_transit),
+          const Icon(Icons.directions_bike),
           IconButton(
             icon: const Icon(Icons.directions_bike),
             onPressed: () async {
@@ -249,23 +249,53 @@ class _HomeScreenState extends State<HomeScreen> {
 class BuildItem extends StatelessWidget {
   const BuildItem({
     Key? key,
-    required this.homeProvider,
-    required this.currentUserId,
+    required this.context,
+    required this.documentSnapshot,
   }) : super(key: key);
 
-  final HomeProvider homeProvider;
-  final String currentUserId;
+  final BuildContext context;
+  final DocumentSnapshot documentSnapshot;
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    ChatUser chatUser = ChatUser.fromDocument(documentSnapshot);
     return ListTile(
-      leading: const CircleAvatar(
-        radius: 28,
-        backgroundImage: AssetImage("assets/images/m_uzair.png"),
-      ),
-      title: const Text(
-        "Muhammad Uzair",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      leading: chatUser.photoUrl.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.network(
+                chatUser.photoUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(
+                        color: Colors.lightBlueAccent,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? (loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!)
+                            : null,
+                      ),
+                    );
+                  }
+                },
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.account_circle,
+                  size: 50,
+                ),
+              ),
+            )
+          : const Icon(Icons.account_circle, size: 50),
+      title: Text(
+        chatUser.displayName,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
       subtitle: const Text("Hey how are you?"),
       trailing: Column(
@@ -291,13 +321,15 @@ class BuildItem extends StatelessWidget {
         ],
       ),
       onTap: () async {
-        print(
-            'CHATTING USERS ${await homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId)}');
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => const ChatScreen(),
-        //     ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                  peerNickname: chatUser.displayName,
+                  peerAvatar: chatUser.photoUrl,
+                  peerId: chatUser.id,
+                  userAvatar: firebaseAuth.currentUser?.photoURL ?? ""),
+            ));
       },
     );
   }
