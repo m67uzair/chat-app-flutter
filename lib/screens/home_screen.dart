@@ -6,6 +6,7 @@ import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/screens/chat_screen.dart';
 import 'package:chat_app_flutter/screens/profile_screen.dart';
 import 'package:chat_app_flutter/screens/search_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -89,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: TabBarView(children: [
           Container(
-            height: 300.0,
+            height: MediaQuery.of(context).size.height - 200,
             color: const Color(0xff1E1E1E),
             child: Column(
               children: [
@@ -146,57 +147,34 @@ class _HomeScreenState extends State<HomeScreen> {
                           topLeft: Radius.circular(40.0),
                           topRight: Radius.circular(40.0),
                         )),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: ListView(
-                        children: [
-                          ListTile(
-                            leading: const CircleAvatar(
-                              radius: 28,
-                              backgroundImage:
-                                  AssetImage("assets/images/m_uzair.png"),
-                            ),
-                            title: const Text(
-                              "Muhammad Uzair",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: const Text("Hey how are you?"),
-                            trailing: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                const Text("2 min ago"),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFFF04A4C),
-                                      shape: BoxShape.circle),
-                                  child: const Center(
-                                    child: Text(
-                                      "3",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            onTap: () async {
-                              print(
-                                  'CHATTING USERS ${await homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId)}');
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) => const ChatScreen(),
-                              //     ));
-                            },
-                          )
-                        ],
-                      ),
+                    child: StreamBuilder(
+                      stream: homeProvider.getFirestoreInboxData(
+                          FirestoreConstants.pathUserCollection,
+                          20,
+                          currentUserId),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasData) {
+                          if ((snapshot.data?.docs.length ?? 0) > 0) {
+                            return ListView.separated(
+                              itemCount: snapshot.data!.docs.length,
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) => BuildItem(
+                                  homeProvider: homeProvider,
+                                  currentUserId: currentUserId),
+                              separatorBuilder: (context, index) =>
+                                  const Divider(),
+                            );
+                          } else {
+                            return const Center(
+                              child: Text("No conversations yet.."),
+                            );
+                          }
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
                     ),
                   ),
                 ),
@@ -264,6 +242,63 @@ class _HomeScreenState extends State<HomeScreen> {
           // )
         ),
       ),
+    );
+  }
+}
+
+class BuildItem extends StatelessWidget {
+  const BuildItem({
+    Key? key,
+    required this.homeProvider,
+    required this.currentUserId,
+  }) : super(key: key);
+
+  final HomeProvider homeProvider;
+  final String currentUserId;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const CircleAvatar(
+        radius: 28,
+        backgroundImage: AssetImage("assets/images/m_uzair.png"),
+      ),
+      title: const Text(
+        "Muhammad Uzair",
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      subtitle: const Text("Hey how are you?"),
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          const Text("2 min ago"),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: const BoxDecoration(
+                color: Color(0xFFF04A4C), shape: BoxShape.circle),
+            child: const Center(
+              child: Text(
+                "3",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+      onTap: () async {
+        print(
+            'CHATTING USERS ${await homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId)}');
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => const ChatScreen(),
+        //     ));
+      },
     );
   }
 }
