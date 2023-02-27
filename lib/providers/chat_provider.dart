@@ -54,7 +54,8 @@ class ChatProvider {
         idTo: peerId,
         timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
         content: content,
-        type: type);
+        type: type,
+        readStatus: false);
 
     await FirebaseFirestore.instance.runTransaction((transaction) async {
       transaction.set(documentReference, chatMessages.toJason());

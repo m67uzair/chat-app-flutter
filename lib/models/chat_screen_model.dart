@@ -7,13 +7,15 @@ class ChatMessages {
   String timestamp;
   String content;
   int type;
+  bool readStatus;
 
   ChatMessages(
       {required this.idFrom,
       required this.idTo,
       required this.timestamp,
       required this.content,
-      required this.type});
+      required this.type,
+      required this.readStatus});
 
   Map<String, dynamic> toJason() {
     return {
@@ -22,6 +24,7 @@ class ChatMessages {
       FirestoreConstants.timestamp: timestamp,
       FirestoreConstants.content: content,
       FirestoreConstants.type: type,
+      FirestoreConstants.readStatus: readStatus
     };
   }
 
@@ -40,10 +43,7 @@ class ChatMessages {
             .contains(FirestoreConstants.timestamp)
         ? documentSnapshot.get(FirestoreConstants.timestamp) ?? ""
         : "";
-    print(
-        "contains: ${documentSnapshot.data().toString().contains(FirestoreConstants.timestamp)}");
-    print("get: ${documentSnapshot.get(FirestoreConstants.timestamp)}");
-    print("timestamp: ${timestamp}");
+
     String content =
         documentSnapshot.data().toString().contains(FirestoreConstants.content)
             ? documentSnapshot.get(FirestoreConstants.content) ?? ""
@@ -54,11 +54,20 @@ class ChatMessages {
                 int.parse(documentSnapshot.get(FirestoreConstants.type))
             : 0;
 
+    bool readStatus = documentSnapshot
+            .data()
+            .toString()
+            .contains(FirestoreConstants.readStatus)
+        ? documentSnapshot.get(FirestoreConstants.readStatus) ??
+            int.parse(documentSnapshot.get(FirestoreConstants.readStatus))
+        : false;
+
     return ChatMessages(
         idFrom: idFrom,
         idTo: idTo,
         timestamp: timestamp,
         content: content,
-        type: type);
+        type: type,
+        readStatus: readStatus);
   }
 }

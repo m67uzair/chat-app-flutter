@@ -71,9 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             CircleAvatar(
               child: IconButton(
-                onPressed: () async {
-                  // await authProvider.signOut();
-
+                onPressed: () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -82,7 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 icon: const Icon(Icons.person),
               ),
-            )
+            ),
+            IconButton(
+                onPressed: () async {
+                  await authProvider.signOut();
+                },
+                icon: const Icon(Icons.exit_to_app_rounded))
           ],
         ),
         body: Container(
