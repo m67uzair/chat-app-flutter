@@ -45,7 +45,6 @@ class HomeProvider {
   Stream<QuerySnapshot> getFirestoreInboxData(
       String collectionPath, int limit, String userId) async* {
     List usersArray = await getUsersChattedWith(collectionPath, userId);
-
     yield* firebaseFirestore
         .collection(collectionPath)
         .where(FirestoreConstants.id, whereIn: usersArray)
