@@ -362,13 +362,17 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 chatMessages.type == MessageType.text
-                    ? messageBubble(
-                        chatContent: chatMessages.content,
-                        color: AppColors.spaceLight,
-                        textColor: AppColors.white,
-                        margin: const EdgeInsets.only(right: Sizes.dimen_10),
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: senderMessageBubble(
+                            chatContent: chatMessages.content,
+                            color: AppColors.spaceLight,
+                            textColor: AppColors.white,
+                            readStatus: chatMessages.readStatus,
+                            timestamp: chatMessages.timestamp),
                       )
                     : chatMessages.type == MessageType.image
                         ? Container(
@@ -378,64 +382,71 @@ class _ChatScreenState extends State<ChatScreen> {
                                 imageSrc: chatMessages.content, onTap: () {}),
                           )
                         : const SizedBox.shrink(),
-                isMessageSent(index)
-                    ? Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Sizes.dimen_20),
-                        ),
-                        child: Image.network(
-                          widget.userAvatar,
-                          width: Sizes.dimen_40,
-                          height: Sizes.dimen_40,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext ctx, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.burgundy,
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, object, stackTrace) {
-                            return const Icon(
-                              Icons.account_circle,
-                              size: 35,
-                              color: AppColors.greyColor,
-                            );
-                          },
-                        ),
-                      )
-                    : Container(
-                        width: 35,
-                      ),
+
+                // chatMessages.readStatus
+                //     ? const Icon(Icons.done_all_outlined,
+                //         color: Colors.lightBlue)
+                //     : const Icon(Icons.done_all_outlined, color: Colors.grey)
+
+                // isMessageSent(index)
+                // ? Container(
+                //     clipBehavior: Clip.hardEdge,
+                //     decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.circular(Sizes.dimen_20),
+                //     ),
+                //     child: Image.network(
+                //       widget.userAvatar,
+                //       width: Sizes.dimen_40,
+                //       height: Sizes.dimen_40,
+                //       fit: BoxFit.cover,
+                //       loadingBuilder: (BuildContext ctx, Widget child,
+                //           ImageChunkEvent? loadingProgress) {
+                //         if (loadingProgress == null) return child;
+                //         return Center(
+                //           child: CircularProgressIndicator(
+                //             color: AppColors.burgundy,
+                //             value: loadingProgress.expectedTotalBytes !=
+                //                     null
+                //                 ? loadingProgress.cumulativeBytesLoaded /
+                //                     loadingProgress.expectedTotalBytes!
+                //                 : null,
+                //           ),
+                //         );
+                //       },
+                //       errorBuilder: (context, object, stackTrace) {
+                //         return const Icon(
+                //           Icons.account_circle,
+                //           size: 35,
+                //           color: AppColors.greyColor,
+                //         );
+                //       },
+                //     ),
+                //   )
+                // : Container(
+                //     width: 35,
+                //   ),
               ],
             ),
-            isMessageSent(index)
-                ? Container(
-                    margin: const EdgeInsets.only(
-                        right: Sizes.dimen_50,
-                        top: Sizes.dimen_6,
-                        bottom: Sizes.dimen_8),
-                    child: Text(
-                      DateFormat('dd MMM yyyy, hh:mm a').format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                          int.parse(chatMessages.timestamp),
-                        ),
-                      ),
-                      style: const TextStyle(
-                          color: AppColors.lightGrey,
-                          fontSize: Sizes.dimen_12,
-                          fontStyle: FontStyle.italic),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+
+            // isMessageSent(index)
+            //     ? Container(
+            //         margin: const EdgeInsets.only(
+            //             right: Sizes.dimen_50,
+            //             top: Sizes.dimen_6,
+            //             bottom: Sizes.dimen_8),
+            //         child: Text(
+            //           DateFormat('hh:mm a').format(
+            //             DateTime.fromMillisecondsSinceEpoch(
+            //               int.parse(chatMessages.timestamp),
+            //             ),
+            //           ),
+            //           style: const TextStyle(
+            //               color: AppColors.lightGrey,
+            //               fontSize: Sizes.dimen_12,
+            //               fontStyle: FontStyle.italic),
+            //         ),
+            //       )
+            //     : const SizedBox.shrink(),
           ],
         );
       } else {
@@ -445,53 +456,53 @@ class _ChatScreenState extends State<ChatScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                isMessageReceived(index)
-                    // left side (received message)
-                    ? Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Sizes.dimen_20),
-                        ),
-                        child: Image.network(
-                          widget.peerAvatar,
-                          width: Sizes.dimen_40,
-                          height: Sizes.dimen_40,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext ctx, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.burgundy,
-                                value: loadingProgress.expectedTotalBytes !=
-                                            null &&
-                                        loadingProgress.expectedTotalBytes !=
-                                            null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, object, stackTrace) {
-                            return const Icon(
-                              Icons.account_circle,
-                              size: 35,
-                              color: AppColors.greyColor,
-                            );
-                          },
-                        ),
-                      )
-                    : Container(
-                        width: 35,
-                      ),
+                // isMessageReceived(index)
+                //     // left side (received message)
+                //     ? Container(
+                //         clipBehavior: Clip.hardEdge,
+                //         decoration: BoxDecoration(
+                //           borderRadius: BorderRadius.circular(Sizes.dimen_20),
+                //         ),
+                //         child: Image.network(
+                //           widget.peerAvatar,
+                //           width: Sizes.dimen_40,
+                //           height: Sizes.dimen_40,
+                //           fit: BoxFit.cover,
+                //           loadingBuilder: (BuildContext ctx, Widget child,
+                //               ImageChunkEvent? loadingProgress) {
+                //             if (loadingProgress == null) return child;
+                //             return Center(
+                //               child: CircularProgressIndicator(
+                //                 color: AppColors.burgundy,
+                //                 value: loadingProgress.expectedTotalBytes !=
+                //                             null &&
+                //                         loadingProgress.expectedTotalBytes !=
+                //                             null
+                //                     ? loadingProgress.cumulativeBytesLoaded /
+                //                         loadingProgress.expectedTotalBytes!
+                //                     : null,
+                //               ),
+                //             );
+                //           },
+                //           errorBuilder: (context, object, stackTrace) {
+                //             return const Icon(
+                //               Icons.account_circle,
+                //               size: 35,
+                //               color: AppColors.greyColor,
+                //             );
+                //           },
+                //         ),
+                //       )
+                //     : Container(
+                //         width: 35,
+                //       ),
                 chatMessages.type == MessageType.text
-                    ? messageBubble(
+                    ? recieverMessageBubble(
                         color: AppColors.burgundy,
                         textColor: AppColors.white,
                         chatContent: chatMessages.content,
-                        margin: const EdgeInsets.only(left: Sizes.dimen_10),
-                      )
+                        readStatus: chatMessages.readStatus,
+                        timestamp: chatMessages.timestamp)
                     : chatMessages.type == MessageType.image
                         ? Container(
                             margin: const EdgeInsets.only(
@@ -502,25 +513,25 @@ class _ChatScreenState extends State<ChatScreen> {
                         : const SizedBox.shrink(),
               ],
             ),
-            isMessageReceived(index)
-                ? Container(
-                    margin: const EdgeInsets.only(
-                        left: Sizes.dimen_50,
-                        top: Sizes.dimen_6,
-                        bottom: Sizes.dimen_8),
-                    child: Text(
-                      DateFormat('dd MMM yyyy, hh:mm a').format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                          int.parse(chatMessages.timestamp),
-                        ),
-                      ),
-                      style: const TextStyle(
-                          color: AppColors.lightGrey,
-                          fontSize: Sizes.dimen_12,
-                          fontStyle: FontStyle.italic),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+            // isMessageReceived(index)
+            //     ? Container(
+            //         margin: const EdgeInsets.only(
+            //             left: Sizes.dimen_50,
+            //             top: Sizes.dimen_6,
+            //             bottom: Sizes.dimen_8),
+            //         child: Text(
+            //           DateFormat('dd MMM yyyy, hh:mm a').format(
+            //             DateTime.fromMillisecondsSinceEpoch(
+            //               int.parse(chatMessages.timestamp),
+            //             ),
+            //           ),
+            //           style: const TextStyle(
+            //               color: AppColors.lightGrey,
+            //               fontSize: Sizes.dimen_12,
+            //               fontStyle: FontStyle.italic),
+            //         ),
+            //       )
+            //     : const SizedBox.shrink(),
           ],
         );
       }

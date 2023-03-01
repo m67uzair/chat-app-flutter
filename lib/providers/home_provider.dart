@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../constants/firestore_constants.dart';
@@ -31,6 +29,13 @@ class HomeProvider {
           .limit(limit)
           .snapshots();
     }
+  }
+
+  Future<QuerySnapshot> getUserPhoto(String userId) async {
+    return await firebaseFirestore
+        .collection(FirestoreConstants.pathUserCollection)
+        .where(FirestoreConstants.id, isEqualTo: userId)
+        .get();
   }
 
   Future<List> getUsersChattedWith(String collectionPath, String userId) async {
