@@ -34,6 +34,7 @@ class AuthProvider extends ChangeNotifier {
       required this.prefs});
 
   String? getFirebaseUserId() {
+    print("getpres string ${prefs.getString(FirestoreConstants.id)}");
     return prefs.getString(FirestoreConstants.id);
   }
 
@@ -58,14 +59,9 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       ));
 
-      print(result);
-
       await FirebaseAuth.instance.currentUser!.updateDisplayName(name);
       await prefs.setString(
           FirestoreConstants.phoneNumber, phoneNumber.toString());
-
-      print(name);
-      print(firebaseAuth.currentUser!.displayName);
 
       firebaseUser = FirebaseAuth.instance.currentUser;
     } on FirebaseAuthException catch (e) {
@@ -81,6 +77,7 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       ))
           .user;
+
       await prefs.setString(
           FirestoreConstants.phoneNumber, firebaseUser?.phoneNumber ?? "");
     } on FirebaseAuthException catch (e) {
@@ -101,6 +98,7 @@ class AuthProvider extends ChangeNotifier {
 
       final List<DocumentSnapshot> document = result.docs;
       if (document.isEmpty) {
+        print("if executed");
         firebaseFirestore
             .collection(FirestoreConstants.pathUserCollection)
             .doc(firebaseUser!.uid)
@@ -126,9 +124,12 @@ class AuthProvider extends ChangeNotifier {
 
         await prefs.setString(FirestoreConstants.aboutMe, "");
       } else {
+        print("else executed");
         DocumentSnapshot documentSnapshot = document[0];
         ChatUser userChat = ChatUser.fromDocument(documentSnapshot);
-        await prefs.setString(FirestoreConstants.id, userChat.id);
+        print("variable user id $userChat.id");
+        print(
+            "userId ${await prefs.setString(FirestoreConstants.id, userChat.id)}");
         await prefs.setString(
             FirestoreConstants.displayName, userChat.displayName);
         await prefs.setString(FirestoreConstants.aboutMe, userChat.aboutMe);

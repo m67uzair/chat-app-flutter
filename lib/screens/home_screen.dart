@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late AuthProvider authProvider;
   late HomeProvider homeProvider;
-  late final String currentUserId;
+  late String currentUserId;
 
   int selectIndex = 0;
 
@@ -37,9 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     authProvider = context.read<AuthProvider>();
     homeProvider = context.read<HomeProvider>();
-    if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
-      currentUserId = authProvider.getFirebaseUserId()!;
-    }
+    // if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
+    currentUserId = authProvider.getFirebaseUserId() ?? "";
+    // }
   }
 
   @override

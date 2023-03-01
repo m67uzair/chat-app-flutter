@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat_app_flutter/constants/firestore_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chat_app_flutter/models/chat_screen_model.dart';
 
@@ -29,6 +30,23 @@ class ChatProvider {
         .collection(collectionPath)
         .doc(docpath)
         .update(updatedData);
+  }
+
+  void updateReadReciepts(String groupChatId, int limit) async {
+    await firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .where(FirestoreConstants.readStatus, isEqualTo: false)
+        .limit(limit)
+        .get()
+        .then((querySnapshot) => {
+              for (var docSnapshot in querySnapshot.docs)
+                {
+                  docSnapshot.reference
+                      .update({FirestoreConstants.readStatus: true})
+                }
+            });
   }
 
   Stream<QuerySnapshot> getChatMessage(String groupChatId, int limit) {

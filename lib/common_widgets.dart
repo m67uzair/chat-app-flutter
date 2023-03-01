@@ -98,7 +98,7 @@ Widget senderMessageBubble({
               const SizedBox(width: 2),
               readStatus
                   ? const Icon(Icons.done_all_outlined,
-                      color: Colors.lightBlue, size: 5)
+                      color: Colors.lightBlue, size: 18)
                   : const Icon(Icons.done_all_outlined,
                       color: Colors.grey, size: 18)
             ],
@@ -156,7 +156,7 @@ Widget recieverMessageBubble({
                     fontSize: Sizes.dimen_12,
                     fontStyle: FontStyle.italic),
               ),
-              const SizedBox(width: 2),
+              // const SizedBox(width: 2),
             ],
           ),
         )
