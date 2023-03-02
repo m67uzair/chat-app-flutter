@@ -3,6 +3,7 @@ import 'package:chat_app_flutter/providers/auth_provider.dart';
 import 'package:chat_app_flutter/providers/chat_provider.dart';
 import 'package:chat_app_flutter/providers/home_provider.dart';
 import 'package:chat_app_flutter/providers/profile_provider.dart';
+import 'package:chat_app_flutter/screens/extract_arguments_screen.dart';
 import 'package:chat_app_flutter/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,6 +73,16 @@ class MyApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
+        routes: {
+          ExtractArgumentsScreen.routeName: (context) =>
+              const ExtractArgumentsScreen(),
+        },
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute(
+            builder: (context) => const ExtractArgumentsScreen(),
+            settings: const RouteSettings(name: "/chatScreen"),
+          );
+        },
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {

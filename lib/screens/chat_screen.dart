@@ -213,6 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // print();
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData.fallback(),
@@ -352,10 +353,83 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget buildItem(int index, DocumentSnapshot? documentSnapshot) {
-    if (documentSnapshot != null) {
-      ChatMessages chatMessages = ChatMessages.fromDocument(documentSnapshot);
-      if (chatMessages.idFrom == currentUserId) {
+  Widget buildListMessage() {
+    return Flexible(
+      child: groupChatId.isNotEmpty
+          ? StreamBuilder<QuerySnapshot>(
+              stream: chatProvider.getChatMessage(groupChatId, _limit),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  listMessages = snapshot.data!.docs;
+                  if (listMessages.isNotEmpty) {
+                    return ListView.builder(
+                        padding: const EdgeInsets.all(10),
+                        itemCount: snapshot.data?.docs.length,
+                        reverse: true,
+                        controller: scrollController,
+                        itemBuilder: (context, index) {
+                          return BuildItem(
+                            index: index,
+                            currentUserId: currentUserId,
+                            documentSnapshot: snapshot.data?.docs[index],
+                          );
+                        });
+                  } else {
+                    return const Center(
+                      child: Text('No messages...'),
+                    );
+                  }
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.burgundy,
+                    ),
+                  );
+                }
+              })
+          : const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.burgundy,
+              ),
+            ),
+    );
+  }
+}
+
+// Future<String> getUserPhoto() async {
+//   QuerySnapshot userSnapshot = await homeProvider.getUserPhoto(currentUserId);
+//   List dataList =
+//       userSnapshot.docs.map((DocumentSnapshot doc) => doc.data()).toList();
+//   return dataList[0][FirestoreConstants.photoUrl];
+// }
+
+class BuildItem extends StatefulWidget {
+  final int index;
+  final DocumentSnapshot? documentSnapshot;
+  final String currentUserId;
+  const BuildItem({
+    super.key,
+    required this.index,
+    required this.currentUserId,
+    this.documentSnapshot,
+  });
+
+  @override
+  State<BuildItem> createState() => _BuildItemState();
+}
+
+class _BuildItemState extends State<BuildItem> {
+  @override
+  Widget build(BuildContext context) {
+    if (widget.documentSnapshot != null) {
+      ChatMessages chatMessages =
+          ChatMessages.fromDocument(widget.documentSnapshot!);
+      setState(() {
+        chatMessages = ChatMessages.fromDocument(widget.documentSnapshot!);
+      });
+
+      if (chatMessages.idFrom == widget.currentUserId) {
         // right side (my message)
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -419,78 +493,8 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       return const SizedBox.shrink();
     }
-  }
-
-  Widget buildListMessage() {
-    return Flexible(
-      child: groupChatId.isNotEmpty
-          ? StreamBuilder<QuerySnapshot>(
-              stream: chatProvider.getChatMessage(groupChatId, _limit),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasData) {
-                  listMessages = snapshot.data!.docs;
-                  if (listMessages.isNotEmpty) {
-                    return ListView.builder(
-                        padding: const EdgeInsets.all(10),
-                        itemCount: snapshot.data?.docs.length,
-                        reverse: true,
-                        controller: scrollController,
-                        itemBuilder: (context, index) {
-                          return buildItem(index, snapshot.data?.docs[index]);
-                        });
-                  } else {
-                    return const Center(
-                      child: Text('No messages...'),
-                    );
-                  }
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.burgundy,
-                    ),
-                  );
-                }
-              })
-          : const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.burgundy,
-              ),
-            ),
-    );
+    ;
   }
 }
 
-// Future<String> getUserPhoto() async {
-//   QuerySnapshot userSnapshot = await homeProvider.getUserPhoto(currentUserId);
-//   List dataList =
-//       userSnapshot.docs.map((DocumentSnapshot doc) => doc.data()).toList();
-//   return dataList[0][FirestoreConstants.photoUrl];
-// }
-
-//  Align(
-//                 alignment: Alignment.centerRight,
-//                 child: UnconstrainedBox(
-//                   child: Container(
-//                     padding: const EdgeInsets.all(10),
-//                     decoration: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(20),
-//                       color: const Color(0xff20A090),
-//                     ),
-//                     child: const Text("Hello, john"),
-//                   ),
-//                 ),
-//               ),
-//               Align(
-//                 alignment: Alignment.centerLeft,
-//                 child: UnconstrainedBox(
-//                   child: Container(
-//                     padding: const EdgeInsets.all(10),
-//                     decoration: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(20),
-//                       color: const Color(0xff20A090),
-//                     ),
-//                     child: const Text("Hello, Muhammad Uzair"),
-//                   ),
-//                 ),
-//               ),
+// Widget buildItem(int index, DocumentSnapshot? documentSnapshot) {}
