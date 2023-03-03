@@ -73,16 +73,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
-        routes: {
-          ExtractArgumentsScreen.routeName: (context) =>
-              const ExtractArgumentsScreen(),
-        },
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => const ExtractArgumentsScreen(),
-            settings: const RouteSettings(name: "/chatScreen"),
-          );
-        },
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {

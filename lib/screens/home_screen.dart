@@ -49,12 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ExtractArgumentsScreen(),
-                  // builder: (context) => const SearchScreen(),
-                ));
+            Navigator.pushNamed(context, ExtractArgumentsScreen.routeName);
           },
           icon: const Icon(Icons.search),
         ),

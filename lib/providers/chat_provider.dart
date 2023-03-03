@@ -32,12 +32,14 @@ class ChatProvider {
         .update(updatedData);
   }
 
-  void updateReadReciepts(String groupChatId, int limit) async {
+  void updateReadReciepts(
+      String groupChatId, String recieverId, int limit) async {
     await firebaseFirestore
         .collection(FirestoreConstants.pathMessageCollection)
         .doc(groupChatId)
         .collection(groupChatId)
         .where(FirestoreConstants.readStatus, isEqualTo: false)
+        .where(FirestoreConstants.idFrom, isEqualTo: recieverId)
         .limit(limit)
         .get()
         .then((querySnapshot) => {

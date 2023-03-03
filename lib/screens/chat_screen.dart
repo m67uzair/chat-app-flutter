@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:developer';
 import 'package:chat_app_flutter/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -50,6 +50,8 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isShowSticker = false;
   String imageUrl = '';
 
+  bool currentPath = false;
+
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   final FocusNode focusNode = FocusNode();
@@ -66,23 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     focusNode.addListener(onFocusChanged);
     scrollController.addListener(_scrollListener);
     readLocal();
-  }
-
-  _scrollListener() {
-    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
-        !scrollController.position.outOfRange) {
-      setState(() {
-        _limit += _limitIncrement;
-      });
-    }
-  }
-
-  void onFocusChanged() {
-    if (focusNode.hasFocus) {
-      setState(() {
-        isShowSticker = false;
-      });
-    }
   }
 
   void readLocal() {
@@ -104,7 +89,227 @@ class _ChatScreenState extends State<ChatScreen> {
         FirestoreConstants.pathUserCollection, widget.peerId, {
       FirestoreConstants.chattingWith: FieldValue.arrayUnion([currentUserId])
     });
-    chatProvider.updateReadReciepts(groupChatId, _limit);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    navigatorKey.currentState!.popUntil(
+      (route) {
+        currentPath = route.isCurrent;
+        return true;
+      },
+    );
+    // if (currentPath) {
+    //   print("current path $currentPath");
+    // }
+    // print();
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: const IconThemeData.fallback(),
+        backgroundColor: Colors.white,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+        ),
+        elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 5),
+            child: IconButton(
+              onPressed: () {
+                ProfileProvider profileProvider;
+                profileProvider = context.read<ProfileProvider>();
+                String callPhoneNumber =
+                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ??
+                        "";
+                _callPhoneNumber(callPhoneNumber);
+              },
+              icon: const Icon(Icons.call_sharp),
+              color: const Color(0xff000E08),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 15),
+            child: IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.videocam_outlined,
+                color: Color(0xff000E08),
+              ),
+            ),
+          )
+        ],
+        title: ListTile(
+          leading: const CircleAvatar(
+            radius: 24,
+            backgroundImage: AssetImage("assets/images/m_uzair.png"),
+          ),
+          title: Text(
+            widget.peerNickname,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text("Active Now"),
+          // trailing: Column(
+          //   crossAxisAlignment: CrossAxisAlignment.end,
+          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //   children: [
+          //     const Text("2 min ago"),
+          //     Container(
+          //       width: 24,
+          //       height: 24,
+          //       decoration: const BoxDecoration(
+          //           color: Color(0xFFF04A4C), shape: BoxShape.circle),
+          //       child: const Center(
+          //         child: Text(
+          //           "3",
+          //           style: TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ),
+          //     )
+          //   ],
+          // ),
+          onTap: () {},
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.end,
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: groupChatId.isNotEmpty
+                    ? StreamBuilder<QuerySnapshot>(
+                        stream:
+                            chatProvider.getChatMessage(groupChatId, _limit),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.hasData) {
+                            listMessages = snapshot.data!.docs;
+                            if (listMessages.isNotEmpty) {
+                              print("no no");
+
+                              return ListView.builder(
+                                  padding: const EdgeInsets.all(10),
+                                  itemCount: snapshot.data?.docs.length,
+                                  reverse: true,
+                                  controller: scrollController,
+                                  itemBuilder: (context, index) {
+                                    if (isMessageReceived(index) &&
+                                        currentPath) {
+                                      print("yes yes");
+                                      chatProvider.updateReadReciepts(
+                                          groupChatId, widget.peerId, _limit);
+                                    }
+                                    return BuildItem(
+                                      currentUserId: currentUserId,
+                                      isRecieved: isMessageReceived(index),
+                                      documentSnapshot:
+                                          snapshot.data?.docs[index],
+                                    );
+                                  });
+                            } else {
+                              return const Center(
+                                child: Text('No messages...'),
+                              );
+                            }
+                          } else {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.burgundy,
+                              ),
+                            );
+                          }
+                        })
+                    : const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.burgundy,
+                        ),
+                      ),
+              ),
+              buildMessageInput(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildMessageInput() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: Row(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: Sizes.dimen_4),
+            decoration: BoxDecoration(
+              color: AppColors.burgundy,
+              borderRadius: BorderRadius.circular(Sizes.dimen_30),
+            ),
+            child: IconButton(
+              onPressed: getImage,
+              icon: const Icon(
+                Icons.camera_alt,
+                size: Sizes.dimen_28,
+              ),
+              color: AppColors.white,
+            ),
+          ),
+          Flexible(
+              child: TextField(
+            focusNode: focusNode,
+            textInputAction: TextInputAction.send,
+            keyboardType: TextInputType.text,
+            textCapitalization: TextCapitalization.sentences,
+            controller: textEditingController,
+            decoration:
+                kTextInputDecoration.copyWith(hintText: 'write here...'),
+            onSubmitted: (value) {
+              onSendMessage(textEditingController.text, MessageType.text);
+            },
+          )),
+          Container(
+            margin: const EdgeInsets.only(left: Sizes.dimen_4),
+            decoration: BoxDecoration(
+              color: AppColors.burgundy,
+              borderRadius: BorderRadius.circular(Sizes.dimen_30),
+            ),
+            child: IconButton(
+              onPressed: () {
+                onSendMessage(textEditingController.text, MessageType.text);
+              },
+              icon: const Icon(Icons.send_rounded),
+              color: AppColors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget buildListMessage() {
+  //   return ;
+  // }
+
+  _scrollListener() {
+    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) {
+      setState(() {
+        _limit += _limitIncrement;
+      });
+    }
+  }
+
+  void onFocusChanged() {
+    if (focusNode.hasFocus) {
+      setState(() {
+        isShowSticker = false;
+      });
+    }
   }
 
   Future getImage() async {
@@ -190,7 +395,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // checking if received message
   bool isMessageReceived(int index) {
     if ((index > 0 &&
-            listMessages[index - 1].get(FirestoreConstants.idFrom) ==
+            listMessages[index].get(FirestoreConstants.idFrom) ==
                 currentUserId) ||
         index == 0) {
       return true;
@@ -210,191 +415,6 @@ class _ChatScreenState extends State<ChatScreen> {
       return false;
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    // print();
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData.fallback(),
-        backgroundColor: Colors.white,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-        ),
-        elevation: 0,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5),
-            child: IconButton(
-              onPressed: () {
-                ProfileProvider profileProvider;
-                profileProvider = context.read<ProfileProvider>();
-                String callPhoneNumber =
-                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ??
-                        "";
-                _callPhoneNumber(callPhoneNumber);
-              },
-              icon: const Icon(Icons.call_sharp),
-              color: const Color(0xff000E08),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 15),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.videocam_outlined,
-                color: Color(0xff000E08),
-              ),
-            ),
-          )
-        ],
-        title: ListTile(
-          leading: const CircleAvatar(
-            radius: 24,
-            backgroundImage: AssetImage("assets/images/m_uzair.png"),
-          ),
-          title: Text(
-            widget.peerNickname,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          subtitle: const Text("Active Now"),
-          // trailing: Column(
-          //   crossAxisAlignment: CrossAxisAlignment.end,
-          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //   children: [
-          //     const Text("2 min ago"),
-          //     Container(
-          //       width: 24,
-          //       height: 24,
-          //       decoration: const BoxDecoration(
-          //           color: Color(0xFFF04A4C), shape: BoxShape.circle),
-          //       child: const Center(
-          //         child: Text(
-          //           "3",
-          //           style: TextStyle(
-          //             color: Colors.white,
-          //             fontWeight: FontWeight.bold,
-          //           ),
-          //         ),
-          //       ),
-          //     )
-          //   ],
-          // ),
-          onTap: () {},
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.end,
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildListMessage(),
-              buildMessageInput(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildMessageInput() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: Row(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(right: Sizes.dimen_4),
-            decoration: BoxDecoration(
-              color: AppColors.burgundy,
-              borderRadius: BorderRadius.circular(Sizes.dimen_30),
-            ),
-            child: IconButton(
-              onPressed: getImage,
-              icon: const Icon(
-                Icons.camera_alt,
-                size: Sizes.dimen_28,
-              ),
-              color: AppColors.white,
-            ),
-          ),
-          Flexible(
-              child: TextField(
-            focusNode: focusNode,
-            textInputAction: TextInputAction.send,
-            keyboardType: TextInputType.text,
-            textCapitalization: TextCapitalization.sentences,
-            controller: textEditingController,
-            decoration:
-                kTextInputDecoration.copyWith(hintText: 'write here...'),
-            onSubmitted: (value) {
-              onSendMessage(textEditingController.text, MessageType.text);
-            },
-          )),
-          Container(
-            margin: const EdgeInsets.only(left: Sizes.dimen_4),
-            decoration: BoxDecoration(
-              color: AppColors.burgundy,
-              borderRadius: BorderRadius.circular(Sizes.dimen_30),
-            ),
-            child: IconButton(
-              onPressed: () {
-                onSendMessage(textEditingController.text, MessageType.text);
-              },
-              icon: const Icon(Icons.send_rounded),
-              color: AppColors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildListMessage() {
-    return Flexible(
-      child: groupChatId.isNotEmpty
-          ? StreamBuilder<QuerySnapshot>(
-              stream: chatProvider.getChatMessage(groupChatId, _limit),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasData) {
-                  listMessages = snapshot.data!.docs;
-                  if (listMessages.isNotEmpty) {
-                    return ListView.builder(
-                        padding: const EdgeInsets.all(10),
-                        itemCount: snapshot.data?.docs.length,
-                        reverse: true,
-                        controller: scrollController,
-                        itemBuilder: (context, index) {
-                          return BuildItem(
-                            index: index,
-                            currentUserId: currentUserId,
-                            documentSnapshot: snapshot.data?.docs[index],
-                          );
-                        });
-                  } else {
-                    return const Center(
-                      child: Text('No messages...'),
-                    );
-                  }
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.burgundy,
-                    ),
-                  );
-                }
-              })
-          : const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.burgundy,
-              ),
-            ),
-    );
-  }
 }
 
 // Future<String> getUserPhoto() async {
@@ -405,12 +425,13 @@ class _ChatScreenState extends State<ChatScreen> {
 // }
 
 class BuildItem extends StatefulWidget {
-  final int index;
+  final bool isRecieved;
   final DocumentSnapshot? documentSnapshot;
   final String currentUserId;
+
   const BuildItem({
     super.key,
-    required this.index,
+    required this.isRecieved,
     required this.currentUserId,
     this.documentSnapshot,
   });
@@ -425,9 +446,9 @@ class _BuildItemState extends State<BuildItem> {
     if (widget.documentSnapshot != null) {
       ChatMessages chatMessages =
           ChatMessages.fromDocument(widget.documentSnapshot!);
-      setState(() {
-        chatMessages = ChatMessages.fromDocument(widget.documentSnapshot!);
-      });
+      // if (widget.isRecieved) {
+      //   print('ok');
+      // }
 
       if (chatMessages.idFrom == widget.currentUserId) {
         // right side (my message)
@@ -493,7 +514,6 @@ class _BuildItemState extends State<BuildItem> {
     } else {
       return const SizedBox.shrink();
     }
-    ;
   }
 }
 
