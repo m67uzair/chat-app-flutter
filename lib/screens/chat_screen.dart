@@ -81,12 +81,10 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       groupChatId = '${widget.peerId} - $currentUserId';
     }
-    chatProvider.updateFirestoreData(
-        FirestoreConstants.pathUserCollection, currentUserId, {
+    chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId, {
       FirestoreConstants.chattingWith: FieldValue.arrayUnion([widget.peerId])
     });
-    chatProvider.updateFirestoreData(
-        FirestoreConstants.pathUserCollection, widget.peerId, {
+    chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, widget.peerId, {
       FirestoreConstants.chattingWith: FieldValue.arrayUnion([currentUserId])
     });
   }
@@ -119,8 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ProfileProvider profileProvider;
                 profileProvider = context.read<ProfileProvider>();
                 String callPhoneNumber =
-                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ??
-                        "";
+                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ?? "";
                 _callPhoneNumber(callPhoneNumber);
               },
               icon: const Icon(Icons.call_sharp),
@@ -183,10 +180,8 @@ class _ChatScreenState extends State<ChatScreen> {
               Flexible(
                 child: groupChatId.isNotEmpty
                     ? StreamBuilder<QuerySnapshot>(
-                        stream:
-                            chatProvider.getChatMessage(groupChatId, _limit),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                        stream: chatProvider.getChatMessage(groupChatId, _limit),
+                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                           if (snapshot.hasData) {
                             listMessages = snapshot.data!.docs;
                             if (listMessages.isNotEmpty) {
@@ -198,8 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   reverse: true,
                                   controller: scrollController,
                                   itemBuilder: (context, index) {
-                                    if (isMessageReceived(index) &&
-                                        currentPath) {
+                                    if (isMessageReceived(index) && currentPath) {
                                       print("yes yes");
                                       chatProvider.updateReadReciepts(
                                           groupChatId, widget.peerId, _limit);
@@ -207,8 +201,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     return BuildItem(
                                       currentUserId: currentUserId,
                                       isRecieved: isMessageReceived(index),
-                                      documentSnapshot:
-                                          snapshot.data?.docs[index],
+                                      documentSnapshot: snapshot.data?.docs[index],
                                     );
                                   });
                             } else {
@@ -266,8 +259,7 @@ class _ChatScreenState extends State<ChatScreen> {
             keyboardType: TextInputType.text,
             textCapitalization: TextCapitalization.sentences,
             controller: textEditingController,
-            decoration:
-                kTextInputDecoration.copyWith(hintText: 'write here...'),
+            decoration: kTextInputDecoration.copyWith(hintText: 'write here...'),
             onSubmitted: (value) {
               onSendMessage(textEditingController.text, MessageType.text);
             },
@@ -358,8 +350,8 @@ class _ChatScreenState extends State<ChatScreen> {
         isShowSticker = false;
       });
     } else {
-      chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection,
-          currentUserId, {FirestoreConstants.chattingWith: null});
+      chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId,
+          {FirestoreConstants.chattingWith: null});
     }
     return Future.value(false);
   }
@@ -376,27 +368,22 @@ class _ChatScreenState extends State<ChatScreen> {
   void onSendMessage(String content, int type) {
     if (content.trim().isNotEmpty) {
       textEditingController.clear();
-      chatProvider.sendChatMessage(
-          content, type, groupChatId, currentUserId, widget.peerId);
+      chatProvider.sendChatMessage(content, type, groupChatId, currentUserId, widget.peerId);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
           scrollController.animateTo(0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut);
+              duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         }
       });
     } else {
-      Fluttertoast.showToast(
-          msg: 'Nothing to send', backgroundColor: Colors.grey);
+      Fluttertoast.showToast(msg: 'Nothing to send', backgroundColor: Colors.grey);
     }
   }
 
   // checking if received message
   bool isMessageReceived(int index) {
-    if ((index > 0 &&
-            listMessages[index].get(FirestoreConstants.idFrom) ==
-                currentUserId) ||
+    if ((index > 0 && listMessages[index].get(FirestoreConstants.idFrom) == currentUserId) ||
         index == 0) {
       return true;
     } else {
@@ -406,9 +393,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // checking if sent message
   bool isMessageSent(int index) {
-    if ((index > 0 &&
-            listMessages[index - 1].get(FirestoreConstants.idFrom) !=
-                currentUserId) ||
+    if ((index > 0 && listMessages[index - 1].get(FirestoreConstants.idFrom) != currentUserId) ||
         index == 0) {
       return true;
     } else {
@@ -444,8 +429,7 @@ class _BuildItemState extends State<BuildItem> {
   @override
   Widget build(BuildContext context) {
     if (widget.documentSnapshot != null) {
-      ChatMessages chatMessages =
-          ChatMessages.fromDocument(widget.documentSnapshot!);
+      ChatMessages chatMessages = ChatMessages.fromDocument(widget.documentSnapshot!);
       // if (widget.isRecieved) {
       //   print('ok');
       // }
@@ -471,10 +455,9 @@ class _BuildItemState extends State<BuildItem> {
                       )
                     : chatMessages.type == MessageType.image
                         ? Container(
-                            margin: const EdgeInsets.only(
-                                right: Sizes.dimen_10, top: Sizes.dimen_10),
-                            child: chatImage(
-                                imageSrc: chatMessages.content, onTap: () {}),
+                            margin:
+                                const EdgeInsets.only(right: Sizes.dimen_10, top: Sizes.dimen_10),
+                            child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                           )
                         : const SizedBox.shrink(),
               ],
@@ -500,10 +483,9 @@ class _BuildItemState extends State<BuildItem> {
                       )
                     : chatMessages.type == MessageType.image
                         ? Container(
-                            margin: const EdgeInsets.only(
-                                left: Sizes.dimen_10, top: Sizes.dimen_10),
-                            child: chatImage(
-                                imageSrc: chatMessages.content, onTap: () {}),
+                            margin:
+                                const EdgeInsets.only(left: Sizes.dimen_10, top: Sizes.dimen_10),
+                            child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                           )
                         : const SizedBox.shrink(),
               ],

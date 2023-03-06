@@ -42,8 +42,7 @@ class _LoginState extends State<Login> {
                 Form(
                   key: _formKey,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 22.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 22.0),
                     child: Column(
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -133,21 +132,21 @@ class _LoginState extends State<Login> {
                                   child: CircularProgressIndicator(),
                                 ),
                               );
-                              await authProvider
-                                  .login(
-                                    emailController.text.trim(),
-                                    passwordController.text.trim(),
-                                  )
-                                  .then((value) async =>
-                                      await authProvider.handleSignIn());
-                              navigatorKey.currentState!
-                                  .popUntil((route) => route.isFirst);
+                              await authProvider.login(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
+                              );
+                              print("handle sign in started");
+                              await authProvider.handleSignIn();
+                              print("handle sign in stoped");
+                              authProvider.setSignInActivity = true;
+
+                              navigatorKey.currentState!.popUntil((route) => route.isFirst);
                             }
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                           ),
                           child: const Text("Login"),
                         ),
@@ -163,8 +162,7 @@ class _LoginState extends State<Login> {
                                 TextSpan(
                                   text: "Register!",
                                   style: const TextStyle(color: Colors.blue),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = widget.onClickedRegister,
+                                  recognizer: TapGestureRecognizer()..onTap = widget.onClickedRegister,
                                 ),
                               ],
                             ),

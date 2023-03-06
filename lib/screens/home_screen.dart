@@ -14,7 +14,9 @@ import '../providers/home_provider.dart';
 import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? currentUserId;
+
+  const HomeScreen({super.key, required this.currentUserId});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,7 +25,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late AuthProvider authProvider;
   late HomeProvider homeProvider;
-  late String currentUserId;
 
   int selectIndex = 0;
 
@@ -35,21 +36,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
     authProvider = context.read<AuthProvider>();
     homeProvider = context.read<HomeProvider>();
     // if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
-    currentUserId = authProvider.getFirebaseUserId() ?? "";
+    // if (authProvider.getSignInActivity) {
+    // currentUserId = authProvider.getFirebaseUserId() ?? "";
     // }
+    // print("current user ${currentUserId}");
+    // }
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    // final userStream = Provider.of<HomeProvider>(context)
+    //     .getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId);
+    print("build called");
+    final userStream = homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20,
+        widget.currentUserId!);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, ExtractArgumentsScreen.routeName);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SearchScreen(),
+                ));
           },
           icon: const Icon(Icons.search),
         ),
@@ -98,8 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: const [
                         CircleAvatar(
                           radius: 30,
-                          backgroundImage:
-                              AssetImage("assets/images/m_uzair.png"),
+                          backgroundImage: AssetImage("assets/images/m_uzair.png"),
                         ),
                         Text(
                           "My Status",
@@ -116,18 +128,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const CircleAvatar(
                       radius: 30,
-                      backgroundImage:
-                          AssetImage("assets/images/profilePicture.png"),
+                      backgroundImage: AssetImage("assets/images/profilePicture.png"),
                     ),
                     const CircleAvatar(
                       radius: 30,
-                      backgroundImage:
-                          AssetImage("assets/images/profilePicture.png"),
+                      backgroundImage: AssetImage("assets/images/profilePicture.png"),
                     ),
                     const CircleAvatar(
                       radius: 30,
-                      backgroundImage:
-                          AssetImage("assets/images/profilePicture.png"),
+                      backgroundImage: AssetImage("assets/images/profilePicture.png"),
                     ),
                   ],
                 ),
@@ -143,30 +152,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     )),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10),
-                  child: StreamBuilder(
-                    stream: homeProvider.getFirestoreInboxData(
-                        FirestoreConstants.pathUserCollection,
-                        20,
-                        currentUserId),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasData) {
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: userStream,
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      print("builder called");
+                      if (snapshot.connectionState.name == "active") {
                         if ((snapshot.data?.docs.length ?? 0) > 0) {
                           return ListView.separated(
                             itemCount: snapshot.data!.docs.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(),
-                            itemBuilder: (context, index) => BuildItem(
-                                context: context,
-                                documentSnapshot: snapshot.data!.docs[index]),
+                            separatorBuilder: (context, index) => const Divider(),
+                            itemBuilder: (context, index) =>
+                                BuildItem(context: context, documentSnapshot: snapshot.data!.docs[index]),
                           );
                         } else {
                           return const Center(
                             child: Text("No conversations yet.."),
                           );
                         }
-                      } else {
+                      } else if (snapshot.connectionState.name == "waiting") {
                         return const Center(child: CircularProgressIndicator());
+                      } else {
+                        return const Center(
+                          child: Text("No conversations yet.."),
+                        );
                       }
                     },
                   ),
@@ -213,8 +221,7 @@ class BuildItem extends StatelessWidget {
                       child: CircularProgressIndicator(
                         color: Colors.lightBlueAccent,
                         value: loadingProgress.expectedTotalBytes != null
-                            ? (loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!)
+                            ? (loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!)
                             : null,
                       ),
                     );
@@ -240,8 +247,7 @@ class BuildItem extends StatelessWidget {
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-                color: Color(0xFFF04A4C), shape: BoxShape.circle),
+            decoration: const BoxDecoration(color: Color(0xFFF04A4C), shape: BoxShape.circle),
             child: const Center(
               child: Text(
                 "3",

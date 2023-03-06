@@ -7,16 +7,11 @@ class HomeProvider {
 
   HomeProvider({required this.firebaseFirestore});
 
-  Future<void> updateFirestoreData(
-      String collectionPath, String path, Map<String, dynamic> updateData) {
-    return firebaseFirestore
-        .collection(collectionPath)
-        .doc(path)
-        .update(updateData);
+  Future<void> updateFirestoreData(String collectionPath, String path, Map<String, dynamic> updateData) {
+    return firebaseFirestore.collection(collectionPath).doc(path).update(updateData);
   }
 
-  Stream<QuerySnapshot> getFirestoreData(
-      String collectionPath, int limit, String? textSearch) {
+  Stream<QuerySnapshot> getFirestoreData(String collectionPath, int limit, String? textSearch) {
     if (textSearch?.isNotEmpty == true) {
       return firebaseFirestore
           .collection(collectionPath)
@@ -24,10 +19,7 @@ class HomeProvider {
           .where(FirestoreConstants.displayName, isEqualTo: textSearch)
           .snapshots();
     } else {
-      return firebaseFirestore
-          .collection(collectionPath)
-          .limit(limit)
-          .snapshots();
+      return firebaseFirestore.collection(collectionPath).limit(limit).snapshots();
     }
   }
 
@@ -39,17 +31,17 @@ class HomeProvider {
   }
 
   Future<List> getUsersChattedWith(String collectionPath, String userId) async {
-    return await firebaseFirestore
+    final docSnapshot = await firebaseFirestore
         .collection(collectionPath)
         .doc(userId)
-        .get()
-        .then((documentSnapshot) =>
-            documentSnapshot.data()![FirestoreConstants.chattingWith]);
+        .get();
+    return docSnapshot.get(FirestoreConstants.chattingWith);
   }
 
-  Stream<QuerySnapshot> getFirestoreInboxData(
-      String collectionPath, int limit, String userId) async* {
+  Stream<QuerySnapshot> getFirestoreInboxData(String collectionPath, int limit, String userId) async* {
+    print("functon called before await");
     List usersArray = await getUsersChattedWith(collectionPath, userId);
+    print("functon called after await");
     yield* firebaseFirestore
         .collection(collectionPath)
         .where(FirestoreConstants.id, whereIn: usersArray)

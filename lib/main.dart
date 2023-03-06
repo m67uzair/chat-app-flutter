@@ -43,25 +43,19 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(
-              firebaseAuth: FirebaseAuth.instance,
-              firebaseFirestore: firebaseFirestore,
-              prefs: prefs),
+          create: (_) =>
+              AuthProvider(firebaseAuth: FirebaseAuth.instance, firebaseFirestore: firebaseFirestore, prefs: prefs),
         ),
         Provider<HomeProvider>(
           create: (_) => HomeProvider(firebaseFirestore: firebaseFirestore),
         ),
         Provider<ProfileProvider>(
-          create: (_) => ProfileProvider(
-              prefs: prefs,
-              firebaseStorage: firebaseStorage,
-              firebaseFirestore: firebaseFirestore),
+          create: (_) =>
+              ProfileProvider(prefs: prefs, firebaseStorage: firebaseStorage, firebaseFirestore: firebaseFirestore),
         ),
         Provider<ChatProvider>(
-          create: (_) => ChatProvider(
-              prefs: prefs,
-              firebaseStorage: firebaseStorage,
-              firebaseFirestore: firebaseFirestore),
+          create: (_) =>
+              ChatProvider(prefs: prefs, firebaseStorage: firebaseStorage, firebaseFirestore: firebaseFirestore),
         )
       ],
       child: MaterialApp(
@@ -79,7 +73,8 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
-              return const HomeScreen();
+
+              return  HomeScreen(currentUserId: snapshot.data?.uid,);
             } else {
               return const AuthPage();
             }
