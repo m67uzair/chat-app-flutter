@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
 
       firebaseUser = FirebaseAuth.instance.currentUser;
     } on FirebaseAuthException catch (e) {
-      print(e);
+      Fluttertoast.showToast(msg: e.message ?? e.toString(), backgroundColor: Colors.grey[900]);
     }
     notifyListeners();
   }
@@ -79,7 +81,7 @@ class AuthProvider extends ChangeNotifier {
 
       await prefs.setString(FirestoreConstants.phoneNumber, firebaseUser?.phoneNumber ?? "");
     } on FirebaseAuthException catch (e) {
-      print(e);
+      Fluttertoast.showToast(msg: e.message ?? e.toString(), backgroundColor: Colors.grey);
     }
     notifyListeners();
   }

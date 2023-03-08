@@ -1,8 +1,11 @@
 import 'package:chat_app_flutter/providers/auth_provider.dart';
+import 'package:chat_app_flutter/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:chat_app_flutter/main.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -58,60 +61,27 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: TextFormField(
-                            controller: emailController,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              icon: Icon(Icons.alternate_email),
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: CustomTextFormField(
                               hintText: "Email",
-                              hintStyle: TextStyle(
-                                color: Colors.black38,
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.black12,
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Input Email';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
+                              icon: const Icon(Icons.alternate_email),
+                              controller: emailController,
+                              validator: MultiValidator([
+                                RequiredValidator(errorText: "Email is required"),
+                                EmailValidator(errorText: "please enter a valid email address")
+                              ]),
+                            )),
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: TextFormField(
-                            controller: passwordController,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.black12,
-                                ),
-                              ),
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: CustomTextFormField(
+                              controller: passwordController,
                               hintText: "Password",
-                              hintStyle: TextStyle(
-                                color: Colors.black38,
-                              ),
-                              icon: Icon(Icons.lock_outline_rounded),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Input Password';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
+                              icon: const Icon(Icons.lock_outline_rounded),
+                              validator: MultiValidator([
+                                RequiredValidator(errorText: "Password is required"),
+                                MinLengthValidator(6, errorText: "Password Must be at-least 6 characters")
+                              ]),
+                            )),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 32.0),
                           child: Align(
@@ -125,24 +95,26 @@ class _LoginState extends State<Login> {
                         ),
                         ElevatedButton(
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              showDialog(
-                                context: context,
-                                builder: (context) => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                              await authProvider.login(
-                                emailController.text.trim(),
-                                passwordController.text.trim(),
-                              );
-                              print("handle sign in started");
-                              await authProvider.handleSignIn();
-                              print("handle sign in stoped");
-                              authProvider.setSignInActivity = true;
 
-                              navigatorKey.currentState!.popUntil((route) => route.isFirst);
-                            }
+                              if (_formKey.currentState!.validate()) {
+                                // showDialog(
+                                //   context: context,
+                                //   builder: (context) => const Center(
+                                //     child: CircularProgressIndicator(),
+                                //   ),
+                                // );
+                                await authProvider.login(
+                                  emailController.text.trim(),
+                                  passwordController.text.trim(),
+                                );
+                                print("handle sign in started");
+                                await authProvider.handleSignIn();
+                                print("handle sign in stoped");
+                                authProvider.setSignInActivity = true;
+
+                                navigatorKey.currentState!.popUntil((route) => route.isFirst);
+                              }
+
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50.0),

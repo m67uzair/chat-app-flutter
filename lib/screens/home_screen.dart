@@ -36,24 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    super.initState();
     authProvider = context.read<AuthProvider>();
     homeProvider = context.read<HomeProvider>();
-    // if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
-    // if (authProvider.getSignInActivity) {
-    // currentUserId = authProvider.getFirebaseUserId() ?? "";
-    // }
-    // print("current user ${currentUserId}");
-    // }
-    super.initState();
   }
+
+  // if (authProvider.getFirebaseUserId()?.isNotEmpty == true) {
+  // if (authProvider.getSignInActivity) {
+  // currentUserId = authProvider.getFirebaseUserId() ?? "";
+  // }
+  // print("current user ${currentUserId}");
+  // }
 
   @override
   Widget build(BuildContext context) {
     // final userStream = Provider.of<HomeProvider>(context)
     //     .getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, currentUserId);
     print("build called");
-    final userStream = homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20,
-        widget.currentUserId!);
+    final userStream =
+        homeProvider.getFirestoreInboxData(FirestoreConstants.pathUserCollection, 20, widget.currentUserId!);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -62,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SearchScreen(),
-                ));
+                )).then((value) => setState(() {}));
           },
           icon: const Icon(Icons.search),
         ),
@@ -152,11 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     )),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10),
-                  child: StreamBuilder<QuerySnapshot>(
+                  child: StreamBuilder(
                     stream: userStream,
-                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
                       print("builder called");
-                      if (snapshot.connectionState.name == "active") {
+                      if (snapshot.connectionState == ConnectionState.active) {
                         if ((snapshot.data?.docs.length ?? 0) > 0) {
                           return ListView.separated(
                             itemCount: snapshot.data!.docs.length,
@@ -169,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Text("No conversations yet.."),
                           );
                         }
-                      } else if (snapshot.connectionState.name == "waiting") {
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else {
                         return const Center(

@@ -4,6 +4,7 @@ import '../constants/firestore_constants.dart';
 
 class HomeProvider {
   final FirebaseFirestore firebaseFirestore;
+  String groupChatId = '';
 
   HomeProvider({required this.firebaseFirestore});
 
@@ -39,9 +40,11 @@ class HomeProvider {
   }
 
   Stream<QuerySnapshot> getFirestoreInboxData(String collectionPath, int limit, String userId) async* {
-    print("functon called before await");
+
+    print("print called before await");
     List usersArray = await getUsersChattedWith(collectionPath, userId);
-    print("functon called after await");
+    print("print called after await");
+
     yield* firebaseFirestore
         .collection(collectionPath)
         .where(FirestoreConstants.id, whereIn: usersArray)

@@ -81,6 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       groupChatId = '${widget.peerId} - $currentUserId';
     }
+
     chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId, {
       FirestoreConstants.chattingWith: FieldValue.arrayUnion([widget.peerId])
     });
@@ -109,6 +110,12 @@ class _ChatScreenState extends State<ChatScreen> {
           statusBarColor: Colors.white,
         ),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(left: 5, right: 5),
@@ -116,8 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () {
                 ProfileProvider profileProvider;
                 profileProvider = context.read<ProfileProvider>();
-                String callPhoneNumber =
-                    profileProvider.getPrefs(FirestoreConstants.phoneNumber) ?? "";
+                String callPhoneNumber = profileProvider.getPrefs(FirestoreConstants.phoneNumber) ?? "";
                 _callPhoneNumber(callPhoneNumber);
               },
               icon: const Icon(Icons.call_sharp),
@@ -185,8 +191,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (snapshot.hasData) {
                             listMessages = snapshot.data!.docs;
                             if (listMessages.isNotEmpty) {
-                              print("no no");
-
                               return ListView.builder(
                                   padding: const EdgeInsets.all(10),
                                   itemCount: snapshot.data?.docs.length,
@@ -194,9 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   controller: scrollController,
                                   itemBuilder: (context, index) {
                                     if (isMessageReceived(index) && currentPath) {
-                                      print("yes yes");
-                                      chatProvider.updateReadReciepts(
-                                          groupChatId, widget.peerId, _limit);
+                                      chatProvider.updateReadReciepts(groupChatId, widget.peerId, _limit);
                                     }
                                     return BuildItem(
                                       currentUserId: currentUserId,
@@ -288,8 +290,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // }
 
   _scrollListener() {
-    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
-        !scrollController.position.outOfRange) {
+    if (scrollController.offset >= scrollController.position.maxScrollExtent && !scrollController.position.outOfRange) {
       setState(() {
         _limit += _limitIncrement;
       });
@@ -350,8 +351,8 @@ class _ChatScreenState extends State<ChatScreen> {
         isShowSticker = false;
       });
     } else {
-      chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId,
-          {FirestoreConstants.chattingWith: null});
+      chatProvider.updateFirestoreData(
+          FirestoreConstants.pathUserCollection, currentUserId, {FirestoreConstants.chattingWith: null});
     }
     return Future.value(false);
   }
@@ -372,8 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
-          scrollController.animateTo(0,
-              duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+          scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         }
       });
     } else {
@@ -383,8 +383,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // checking if received message
   bool isMessageReceived(int index) {
-    if ((index > 0 && listMessages[index].get(FirestoreConstants.idFrom) == currentUserId) ||
-        index == 0) {
+    if ((index > 0 && listMessages[index].get(FirestoreConstants.idFrom) == currentUserId) || index == 0) {
       return true;
     } else {
       return false;
@@ -393,8 +392,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // checking if sent message
   bool isMessageSent(int index) {
-    if ((index > 0 && listMessages[index - 1].get(FirestoreConstants.idFrom) != currentUserId) ||
-        index == 0) {
+    if ((index > 0 && listMessages[index - 1].get(FirestoreConstants.idFrom) != currentUserId) || index == 0) {
       return true;
     } else {
       return false;
@@ -455,8 +453,7 @@ class _BuildItemState extends State<BuildItem> {
                       )
                     : chatMessages.type == MessageType.image
                         ? Container(
-                            margin:
-                                const EdgeInsets.only(right: Sizes.dimen_10, top: Sizes.dimen_10),
+                            margin: const EdgeInsets.only(right: Sizes.dimen_10, top: Sizes.dimen_10),
                             child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                           )
                         : const SizedBox.shrink(),
@@ -483,8 +480,7 @@ class _BuildItemState extends State<BuildItem> {
                       )
                     : chatMessages.type == MessageType.image
                         ? Container(
-                            margin:
-                                const EdgeInsets.only(left: Sizes.dimen_10, top: Sizes.dimen_10),
+                            margin: const EdgeInsets.only(left: Sizes.dimen_10, top: Sizes.dimen_10),
                             child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                           )
                         : const SizedBox.shrink(),
