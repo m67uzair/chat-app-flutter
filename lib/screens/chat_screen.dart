@@ -27,7 +27,7 @@ class ChatScreen extends StatefulWidget {
   final String peerNickname;
   final String userAvatar;
 
-  const ChatScreen(
+  ChatScreen(
       {super.key,
       required this.peerNickname,
       required this.peerAvatar,
@@ -39,11 +39,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late String currentUserId;
   List<QueryDocumentSnapshot> listMessages = [];
-  int _limit = 20;
-  final int _limitIncrement = 20;
+
+  late String currentUserId;
   String groupChatId = '';
+  String message = '';
+  int _limit = 20;
+
+  final int _limitIncrement = 20;
 
   File? imageFile;
   bool isLoading = false;
@@ -83,10 +86,11 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId, {
-      FirestoreConstants.chattingWith: FieldValue.arrayUnion([widget.peerId])
+      "${FirestoreConstants.chattingWith}.users": FieldValue.arrayUnion([widget.peerId]),
     });
+
     chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, widget.peerId, {
-      FirestoreConstants.chattingWith: FieldValue.arrayUnion([currentUserId])
+      "${FirestoreConstants.chattingWith}.users": FieldValue.arrayUnion([currentUserId]),
     });
   }
 
@@ -104,6 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // print();
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         iconTheme: const IconThemeData.fallback(),
         backgroundColor: Colors.white,
         systemOverlayStyle: const SystemUiOverlayStyle(
@@ -112,8 +117,28 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
+          onPressed: () async {
+            QuerySnapshot lastMessageSnapshot = await chatProvider.getLastMessage(groupChatId);
+            final lastMessage = lastMessageSnapshot.docs[0].data();
+
+            chatProvider.updateFirestoreData(
+              FirestoreConstants.pathUserCollection,
+              currentUserId,
+              {
+                "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}": lastMessage,
+              },
+            );
+            chatProvider.updateFirestoreData(
+              FirestoreConstants.pathUserCollection,
+              widget.peerId,
+              {
+                "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId": lastMessage,
+              },
+            );
+
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           },
         ),
         actions: [

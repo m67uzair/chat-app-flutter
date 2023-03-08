@@ -4,7 +4,6 @@ import '../constants/firestore_constants.dart';
 
 class HomeProvider {
   final FirebaseFirestore firebaseFirestore;
-  String groupChatId = '';
 
   HomeProvider({required this.firebaseFirestore});
 
@@ -32,22 +31,15 @@ class HomeProvider {
   }
 
   Future<List> getUsersChattedWith(String collectionPath, String userId) async {
-    final docSnapshot = await firebaseFirestore
-        .collection(collectionPath)
-        .doc(userId)
-        .get();
-    return docSnapshot.get(FirestoreConstants.chattingWith);
+    final docSnapshot = await firebaseFirestore.collection(collectionPath).doc(userId).get();
+    return docSnapshot.get(FirestoreConstants.chattingWith)['users'];
   }
 
   Stream<QuerySnapshot> getFirestoreInboxData(String collectionPath, int limit, String userId) async* {
-
     print("print called before await");
     List usersArray = await getUsersChattedWith(collectionPath, userId);
     print("print called after await");
 
-    yield* firebaseFirestore
-        .collection(collectionPath)
-        .where(FirestoreConstants.id, whereIn: usersArray)
-        .snapshots();
+    yield* firebaseFirestore.collection(collectionPath).where(FirestoreConstants.id, whereIn: usersArray).snapshots();
   }
 }

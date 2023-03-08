@@ -24,9 +24,8 @@ class ChatProvider {
     return uploadTask;
   }
 
-  Future<void> updateFirestoreData(
-      String collectionPath, String docpath, Map<String, dynamic> updatedData) {
-    return firebaseFirestore.collection(collectionPath).doc(docpath).update(updatedData);
+  Future<void> updateFirestoreData(String collectionPath, String userID, Map<String, dynamic> updatedData) {
+    return firebaseFirestore.collection(collectionPath).doc(userID).update(updatedData);
   }
 
   void updateReadReciepts(String groupChatId, String recieverId, int limit) async {
@@ -56,8 +55,17 @@ class ChatProvider {
         .snapshots();
   }
 
-  void sendChatMessage(
-      String content, int type, String groupChatId, String currentUserId, String peerId) async {
+  Future<QuerySnapshot> getLastMessage(String groupChatId) {
+    return firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .orderBy(FirestoreConstants.timestamp, descending: true)
+        .limit(1)
+        .get();
+  }
+
+  void sendChatMessage(String content, int type, String groupChatId, String currentUserId, String peerId) async {
     DocumentReference documentReference = firebaseFirestore
         .collection(FirestoreConstants.pathMessageCollection)
         .doc(groupChatId)

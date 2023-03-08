@@ -203,6 +203,9 @@ class BuildItem extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     ChatUser chatUser = ChatUser.fromDocument(documentSnapshot);
+    String? currentUser = firebaseAuth.currentUser?.uid;
+    final lastMessageRef = documentSnapshot.get(FirestoreConstants.chattingWith)["lastMessage"][currentUser];
+    print("user data ${documentSnapshot.data()}");
     return ListTile(
       leading: chatUser.photoUrl.isNotEmpty
           ? ClipRRect(
@@ -239,7 +242,9 @@ class BuildItem extends StatelessWidget {
         chatUser.displayName,
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      subtitle: const Text("Hey how are you?"),
+      subtitle: Text(lastMessageRef["idFrom"] == currentUser
+          ? "you: ${lastMessageRef["content"]}"
+          : "${chatUser.displayName}: ${lastMessageRef["content"]}"),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceAround,

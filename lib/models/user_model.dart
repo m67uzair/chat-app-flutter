@@ -62,6 +62,7 @@ class ChatUser extends Equatable {
       aboutMe = snapshot.data().toString().contains(FirestoreConstants.aboutMe)
           ? snapshot.get(FirestoreConstants.aboutMe) ?? ""
           : "";
+
     } catch (e) {
       if (kDebugMode) {
         print(e);
