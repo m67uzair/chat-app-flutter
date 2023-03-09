@@ -205,7 +205,8 @@ class BuildItem extends StatelessWidget {
     ChatUser chatUser = ChatUser.fromDocument(documentSnapshot);
     String? currentUser = firebaseAuth.currentUser?.uid;
     final lastMessageRef = documentSnapshot.get(FirestoreConstants.chattingWith)["lastMessage"][currentUser];
-    print("user data ${documentSnapshot.data()}");
+    print("reference $lastMessageRef");
+    String numberOfUnreadMessages = lastMessageRef["numberOfUnreadMessages"].toString();
     return ListTile(
       leading: chatUser.photoUrl.isNotEmpty
           ? ClipRRect(
@@ -250,20 +251,22 @@ class BuildItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const Text("2 min ago"),
-          Container(
-            width: 24,
-            height: 24,
-            decoration: const BoxDecoration(color: Color(0xFFF04A4C), shape: BoxShape.circle),
-            child: const Center(
-              child: Text(
-                "3",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
+          int.parse(numberOfUnreadMessages) != 0
+              ? Container(
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(color: Color(0xFFF04A4C), shape: BoxShape.circle),
+                  child: Center(
+                    child: Text(
+                      numberOfUnreadMessages,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox(width: 24, height: 24)
         ],
       ),
       onTap: () async {

@@ -65,7 +65,45 @@ class ChatProvider {
         .get();
   }
 
-  void sendChatMessage(String content, int type, String groupChatId, String currentUserId, String peerId) async {
+  Future<int> getNumberOfUnreadMessages(String groupChatId) async{
+    QuerySnapshot querySnapshot = await  firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .where(FirestoreConstants.readStatus, isEqualTo: false).get();
+
+    return querySnapshot.docs.length;
+  }
+
+  void updateUnreadMessagesCount(String groupChatId) async {
+    DocumentSnapshot countDocSnapshot = await firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .doc("unreadMessagesCount")
+        .get();
+
+    int count = countDocSnapshot.get("count") ?? 0;
+
+    firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .doc("unreadMessagesCount")
+        .set({"count": count++});
+  }
+
+  void makeUnreadCountZero(String groupChatId)  {
+    firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(groupChatId)
+        .collection(groupChatId)
+        .doc("unreadMessagesCount")
+        .set({"count": 0});
+  }
+
+  Future<void> sendChatMessage(String content, int type, String groupChatId, String currentUserId, String peerId)
+  async {
     DocumentReference documentReference = firebaseFirestore
         .collection(FirestoreConstants.pathMessageCollection)
         .doc(groupChatId)

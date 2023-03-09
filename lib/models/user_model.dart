@@ -47,34 +47,29 @@ class ChatUser extends Equatable {
     String aboutMe = "";
 
     try {
-      photoUrl =
-          snapshot.data().toString().contains(FirestoreConstants.photoUrl)
-              ? snapshot.get(FirestoreConstants.photoUrl) ?? ""
-              : "";
-      nickname =
-          snapshot.data().toString().contains(FirestoreConstants.displayName)
-              ? snapshot.get(FirestoreConstants.displayName) ?? ""
-              : "";
-      phoneNumber =
-          snapshot.data().toString().contains(FirestoreConstants.phoneNumber)
-              ? snapshot.get(FirestoreConstants.phoneNumber) ?? 0
-              : 0;
+      photoUrl = snapshot.data().toString().contains(FirestoreConstants.photoUrl)
+          ? snapshot.get(FirestoreConstants.photoUrl) ?? ""
+          : "";
+      nickname = snapshot.data().toString().contains(FirestoreConstants.displayName)
+          ? snapshot.get(FirestoreConstants.displayName) ?? ""
+          : "";
+      phoneNumber = snapshot.data().toString().contains(FirestoreConstants.phoneNumber)
+          ? snapshot.get(FirestoreConstants.phoneNumber) ?? 0
+          : 0;
       aboutMe = snapshot.data().toString().contains(FirestoreConstants.aboutMe)
           ? snapshot.get(FirestoreConstants.aboutMe) ?? ""
           : "";
-
+      print("${nickname} contains photo url ${snapshot.data().toString().contains(FirestoreConstants.photoUrl)}");
+      print("${nickname} get photo url ${snapshot.get(FirestoreConstants.photoUrl)}");
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
     }
     return ChatUser(
-        id: snapshot.id,
-        photoUrl: photoUrl,
-        displayName: nickname,
-        phoneNumber: phoneNumber,
-        aboutMe: aboutMe);
+        id: snapshot.id, photoUrl: photoUrl, displayName: nickname, phoneNumber: phoneNumber, aboutMe: aboutMe);
   }
+
   @override
   // TODO: implement props
   List<Object?> get props => [id, photoUrl, displayName, phoneNumber, aboutMe];

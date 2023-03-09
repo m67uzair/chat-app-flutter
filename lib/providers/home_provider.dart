@@ -40,6 +40,9 @@ class HomeProvider {
     List usersArray = await getUsersChattedWith(collectionPath, userId);
     print("print called after await");
 
-    yield* firebaseFirestore.collection(collectionPath).where(FirestoreConstants.id, whereIn: usersArray).snapshots();
+    yield* firebaseFirestore
+        .collection(collectionPath)
+        .where(FirestoreConstants.id, whereIn: usersArray)
+        .snapshots();
   }
 }

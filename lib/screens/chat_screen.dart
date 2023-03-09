@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:developer';
 import 'package:chat_app_flutter/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -87,6 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, currentUserId, {
       "${FirestoreConstants.chattingWith}.users": FieldValue.arrayUnion([widget.peerId]),
+      "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}.numberOfUnreadMessages": 0,
     });
 
     chatProvider.updateFirestoreData(FirestoreConstants.pathUserCollection, widget.peerId, {
@@ -118,24 +117,6 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () async {
-            QuerySnapshot lastMessageSnapshot = await chatProvider.getLastMessage(groupChatId);
-            final lastMessage = lastMessageSnapshot.docs[0].data();
-
-            chatProvider.updateFirestoreData(
-              FirestoreConstants.pathUserCollection,
-              currentUserId,
-              {
-                "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}": lastMessage,
-              },
-            );
-            chatProvider.updateFirestoreData(
-              FirestoreConstants.pathUserCollection,
-              widget.peerId,
-              {
-                "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId": lastMessage,
-              },
-            );
-
             if (context.mounted) {
               Navigator.pop(context);
             }
@@ -391,10 +372,36 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void onSendMessage(String content, int type) {
+  void onSendMessage(String content, int type) async {
     if (content.trim().isNotEmpty) {
       textEditingController.clear();
-      chatProvider.sendChatMessage(content, type, groupChatId, currentUserId, widget.peerId);
+
+      await chatProvider.sendChatMessage(content, type, groupChatId, currentUserId, widget.peerId);
+
+      QuerySnapshot lastMessageSnapshot = await chatProvider.getLastMessage(groupChatId);
+      int numberOfUnreadMessages = await chatProvider.getNumberOfUnreadMessages(groupChatId);
+
+      final lastMessage = lastMessageSnapshot.docs[0].data();
+
+      await chatProvider.updateFirestoreData(
+        FirestoreConstants.pathUserCollection,
+        currentUserId,
+        {
+          "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}": lastMessage,
+          "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}.numberOfUnreadMessages": numberOfUnreadMessages
+        },
+      );
+
+      await chatProvider.updateFirestoreData(
+        FirestoreConstants.pathUserCollection,
+        widget.peerId,
+        {
+          "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId": lastMessage,
+          "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId.numberOfUnreadMessages":
+              0
+        },
+      );
+      print("updated number of unread messages");
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollController.hasClients) {
