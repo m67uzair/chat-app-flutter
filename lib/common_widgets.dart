@@ -5,14 +5,7 @@ import 'constants/color_constants.dart';
 import 'constants/size_constants.dart';
 
 Widget errorContainer() {
-  return Container(
-    clipBehavior: Clip.hardEdge,
-    child: Image.asset(
-      'assets/images/img_not_available.jpeg',
-      height: Sizes.dimen_200,
-      width: Sizes.dimen_200,
-    ),
-  );
+  return const Icon(Icons.account_circle_rounded);
 }
 
 Widget chatImage({required String imageSrc, required Function onTap}) {
@@ -20,8 +13,8 @@ Widget chatImage({required String imageSrc, required Function onTap}) {
     onPressed: onTap(),
     child: Image.network(
       imageSrc,
-      width: Sizes.dimen_200,
-      height: Sizes.dimen_200,
+      width: 45,
+      height: 45,
       fit: BoxFit.cover,
       loadingBuilder:
           (BuildContext ctx, Widget child, ImageChunkEvent? loadingProgress) {
@@ -91,16 +84,16 @@ Widget senderMessageBubble({
                   ),
                 ),
                 style: const TextStyle(
-                    color: AppColors.lightGrey,
+                    color: Colors.black38,
                     fontSize: Sizes.dimen_12,
                     fontStyle: FontStyle.italic),
               ),
               const SizedBox(width: 2),
               readStatus
                   ? const Icon(Icons.done_all_outlined,
-                      color: Colors.lightBlue, size: 18)
+                      color: Colors.black38, size: 18)
                   : const Icon(Icons.done_all_outlined,
-                      color: Colors.grey, size: 18)
+                      color: Colors.white70, size: 18)
             ],
           ),
         )

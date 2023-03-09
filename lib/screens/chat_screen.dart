@@ -25,7 +25,7 @@ class ChatScreen extends StatefulWidget {
   final String peerNickname;
   final String userAvatar;
 
-  ChatScreen(
+  const ChatScreen(
       {super.key,
       required this.peerNickname,
       required this.peerAvatar,
@@ -108,6 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        titleSpacing: 0.1,
         iconTheme: const IconThemeData.fallback(),
         backgroundColor: Colors.white,
         systemOverlayStyle: const SystemUiOverlayStyle(
@@ -147,51 +148,59 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           )
         ],
-        title: ListTile(
-          leading: const CircleAvatar(
-            radius: 24,
-            backgroundImage: AssetImage("assets/images/m_uzair.png"),
+        title: SizedBox(
+          width: double.infinity,
+          child: ListTile(
+            // minLeadingWidth: 10,
+            horizontalTitleGap: 2,
+            leading: widget.peerAvatar.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.network(
+                      widget.peerAvatar,
+                      fit: BoxFit.cover,
+                      width: 60,
+                      height: 60,
+                      loadingBuilder: (BuildContext ctx, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        } else {
+                          return SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: CircularProgressIndicator(
+                                color: Colors.grey,
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                    : null),
+                          );
+                        }
+                      },
+                      errorBuilder: (context, object, stackTrace) {
+                        return const Icon(Icons.account_circle, size: 60);
+                      },
+                    ),
+                  )
+                : const Icon(
+                    Icons.account_circle,
+                    size: 50,
+                  ),
+            title: Text(
+              widget.peerNickname,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+            ),
+            onTap: () {},
           ),
-          title: Text(
-            widget.peerNickname,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          subtitle: const Text("Active Now"),
-          // trailing: Column(
-          //   crossAxisAlignment: CrossAxisAlignment.end,
-          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //   children: [
-          //     const Text("2 min ago"),
-          //     Container(
-          //       width: 24,
-          //       height: 24,
-          //       decoration: const BoxDecoration(
-          //           color: Color(0xFFF04A4C), shape: BoxShape.circle),
-          //       child: const Center(
-          //         child: Text(
-          //           "3",
-          //           style: TextStyle(
-          //             color: Colors.white,
-          //             fontWeight: FontWeight.bold,
-          //           ),
-          //         ),
-          //       ),
-          //     )
-          //   ],
-          // ),
-          onTap: () {},
         ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.end,
-            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: groupChatId.isNotEmpty
-                    ? StreamBuilder<QuerySnapshot>(
+              groupChatId.isNotEmpty
+                  ? Flexible(
+                    child: StreamBuilder<QuerySnapshot>(
                         stream: chatProvider.getChatMessage(groupChatId, _limit),
                         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                           if (snapshot.hasData) {
@@ -224,13 +233,13 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             );
                           }
-                        })
-                    : const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.burgundy,
-                        ),
+                        }),
+                  )
+                  : const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.burgundy,
                       ),
-              ),
+                    ),
               buildMessageInput(),
             ],
           ),
@@ -248,7 +257,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             margin: const EdgeInsets.only(right: Sizes.dimen_4),
             decoration: BoxDecoration(
-              color: AppColors.burgundy,
+              color: const Color(0xFF20A090),
               borderRadius: BorderRadius.circular(Sizes.dimen_30),
             ),
             child: IconButton(
@@ -275,7 +284,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             margin: const EdgeInsets.only(left: Sizes.dimen_4),
             decoration: BoxDecoration(
-              color: AppColors.burgundy,
+              color: const Color(0xFF20A090),
               borderRadius: BorderRadius.circular(Sizes.dimen_30),
             ),
             child: IconButton(
@@ -388,7 +397,8 @@ class _ChatScreenState extends State<ChatScreen> {
         currentUserId,
         {
           "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}": lastMessage,
-          "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}.numberOfUnreadMessages": numberOfUnreadMessages
+          "${FirestoreConstants.chattingWith}.lastMessage.${widget.peerId}.numberOfUnreadMessages":
+              numberOfUnreadMessages
         },
       );
 
@@ -397,8 +407,7 @@ class _ChatScreenState extends State<ChatScreen> {
         widget.peerId,
         {
           "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId": lastMessage,
-          "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId.numberOfUnreadMessages":
-              0
+          "${FirestoreConstants.chattingWith}.lastMessage.$currentUserId.numberOfUnreadMessages": 0
         },
       );
       print("updated number of unread messages");
@@ -460,64 +469,51 @@ class _BuildItemState extends State<BuildItem> {
   Widget build(BuildContext context) {
     if (widget.documentSnapshot != null) {
       ChatMessages chatMessages = ChatMessages.fromDocument(widget.documentSnapshot!);
-      // if (widget.isRecieved) {
-      //   print('ok');
-      // }
 
       if (chatMessages.idFrom == widget.currentUserId) {
         // right side (my message)
-        return Column(
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                chatMessages.type == MessageType.text
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: senderMessageBubble(
-                            chatContent: chatMessages.content,
-                            color: AppColors.spaceLight,
-                            textColor: AppColors.white,
-                            readStatus: chatMessages.readStatus,
-                            timestamp: chatMessages.timestamp),
+            chatMessages.type == MessageType.text
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: senderMessageBubble(
+                        chatContent: chatMessages.content,
+                        color: const Color(0xFF20A090),
+                        textColor: AppColors.white,
+                        readStatus: chatMessages.readStatus,
+                        timestamp: chatMessages.timestamp),
+                  )
+                : chatMessages.type == MessageType.image
+                    ? Container(
+                        margin: const EdgeInsets.only(right: Sizes.dimen_10, top: Sizes.dimen_10),
+                        child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                       )
-                    : chatMessages.type == MessageType.image
-                        ? Container(
-                            margin: const EdgeInsets.only(right: Sizes.dimen_10, top: Sizes.dimen_10),
-                            child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
-                          )
-                        : const SizedBox.shrink(),
-              ],
-            ),
+                    : const SizedBox.shrink(),
           ],
         );
       } else {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                chatMessages.type == MessageType.text
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: recieverMessageBubble(
-                            color: AppColors.burgundy,
-                            textColor: AppColors.white,
-                            chatContent: chatMessages.content,
-                            readStatus: chatMessages.readStatus,
-                            timestamp: chatMessages.timestamp),
+            chatMessages.type == MessageType.text
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: recieverMessageBubble(
+                        color: const Color(0xFFE0EDF8),
+                        textColor: Colors.black,
+                        chatContent: chatMessages.content,
+                        readStatus: chatMessages.readStatus,
+                        timestamp: chatMessages.timestamp),
+                  )
+                : chatMessages.type == MessageType.image
+                    ? Container(
+                        margin: const EdgeInsets.only(left: Sizes.dimen_10, top: Sizes.dimen_10),
+                        child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
                       )
-                    : chatMessages.type == MessageType.image
-                        ? Container(
-                            margin: const EdgeInsets.only(left: Sizes.dimen_10, top: Sizes.dimen_10),
-                            child: chatImage(imageSrc: chatMessages.content, onTap: () {}),
-                          )
-                        : const SizedBox.shrink(),
-              ],
-            ),
+                    : const SizedBox.shrink(),
           ],
         );
       }
